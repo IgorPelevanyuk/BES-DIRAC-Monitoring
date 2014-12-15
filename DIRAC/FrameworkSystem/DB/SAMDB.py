@@ -101,7 +101,7 @@ class SAMDB( DB ):
             sqlInsert = "INSERT INTO SiteTests (site_id, test_id, state, last_run) VALUES (%s, %s, '%s', DATE('1970-01-01'))" % (site_id, id[0], 'Waiting')
             result = self._update( sqlInsert )
             if not result[ 'OK' ]: 
-                return_val = gLogger.error('Failed to match test %s for %s'%(id[0], site_id)
+                return_val = gLogger.error('Failed to match test %s for %s'%(id[0], site_id))
         return return_val
 
 
