@@ -84,26 +84,91 @@ class SAMDB( DB ):
 
         return self._createTables( tablesD )
 
-    def addNewSite(self, siteName):
-        #Add entry to the Sites table
-        sqlInsert = "INSERT INTO Sites (name) VALUES ('%s')" % (siteName)
+    def addNewSite(self, site_name):
+        # Add entry to the Sites table
+        sqlInsert = "INSERT INTO Sites (name) VALUES ('%s')" % (site_name)
         result = self._update( sqlInsert )
         if not result[ 'OK' ]:
             gLogger.error('Failed to insert new site in addNewSite function')
             return result
-        #Add entry to SiteTests
-        return_val = S_OK()
-        sqlQuerry = "SELECT site_id from Sites WHERE name='%s'" % (siteName)
-        site_id = self._query(sqlQuerry)['Value'][0]
+
+        # Add entry to SiteTests
+        site_id = result['lastRowId']
         sqlQuerry = "SELECT test_id from Tests"
         tests = self._query(sqlQuerry)['Value']
-        for id in tests:
-            sqlInsert = "INSERT INTO SiteTests (site_id, test_id, state, last_run) VALUES (%s, %s, '%s', DATE('1970-01-01'))" % (site_id, id[0], 'Waiting')
+        for test_id in tests:
+            sqlInsert = "INSERT INTO SiteTests (site_id, test_id, state, last_run) VALUES (%s, %s, '%s', DATE('1970-01-01'))" % (site_id, test_id[0], 'Waiting')
             result = self._update( sqlInsert )
             if not result[ 'OK' ]: 
-                return_val = gLogger.error('Failed to match test %s for %s'%(id[0], site_id))
-        return return_val
+                gLogger.error('Failed to match test %s for %s'%(test_id[0], site_id))
+        return S_OK()
 
+    def addNewTest(self, test_name, executable, period, timeout, description):
+        # Add entry to Tests table
+        sqlInsert = "INSERT INTO Tests (name, executable, period, timeout, description) VALUES ('%s', '%s', %s, %s, '%s')" % (test_name, executable, period, timeout, description )
+        result = self._update( sqlInsert )
+        if not result[ 'OK' ]:
+            gLogger.error('Failed to insert new test in addNewTest function')
+            return result
+
+        # Add entry to SiteTests table
+        test_id = result['lastRowId']
+        sqlQuerry = "SELECT site_id from Sites"
+        sites = self._query(sqlQuerry)['Value']
+        for site_id in sites:
+            sqlInsert = "INSERT INTO SiteTests (site_id, test_id, state, last_run) VALUES (%s, %s, '%s', DATE('1970-01-01'))" % (site_id[0], test_id, 'Waiting')
+            result = self._update( sqlInsert )
+            if not result[ 'OK' ]: 
+                gLogger.error('Failed to match test %s for %s'%(test_id, site_id[0]))
+        return S_OK()
+
+    def deleteSite(self, site_name):
+        # Get Id of required site
+        sqlQuerry = "SELECT site_id from Sites WHERE name='%s'"%(site_name)
+        result = self._query(sqlQuerry)
+        if not result[ 'OK' ]:
+            gLogger.error('Failed to find site_name %s' % (site_name))
+            return result
+        site_id = result['Value'][0]
+
+        # Delete required site_id from SiteTests
+        sqlDelete = "DELETE FROM SiteTests WHERE site_id=%s" % (site_id)
+        result = self._transaction(sqlQuerry)
+        if not result[ 'OK' ]:
+            gLogger.error('Failed to delete site_id %s for site_name %s from SiteTests table' % (site_id, site_name))
+            return result
+
+        # Delete required site_id from Sites
+        sqlDelete = "DELETE FROM Sites WHERE site_id=%s" % (site_id)
+        result = self._transaction( sqlDelete )
+        if not result[ 'OK' ]:
+            gLogger.error('Failed to delete site_id %s for site_name %s from Sites table' % (site_id, site_name))
+            return result
+        return S_OK()
+
+    def deleteTest(self, test_name):
+        # Get Id of required test
+        sqlQuerry = "SELECT test_id from Tests WHERE name='%s'"%(test_name)
+        result = self._query(sqlQuerry)
+        if not result[ 'OK' ]:
+            gLogger.error('Failed to find test_name %s' % (test_name))
+            return result
+        test_id = result['Value'][0]
+
+        # Delete required test_id from SiteTests
+        sqlDelete = "DELETE FROM SiteTests WHERE test_id=%s" % (test_id)
+        result = self._transaction(sqlQuerry)
+        if not result[ 'OK' ]:
+            gLogger.error('Failed to delete test_id %s for test_name %s from SiteTests table' % (test_id, test_name))
+            return result
+
+        # Delete required test_id from Tests
+        sqlDelete = "DELETE FROM Tests WHERE test_id=%s" % (test_id)
+        result = self._transaction( sqlDelete )
+        if not result[ 'OK' ]:
+            gLogger.error('Failed to delete test_id %s for test_name %s from Tests table' % (test_id, test_name))
+            return result
+        return S_OK()       
 
     def getTestsToRun(self):
         selectSQL = "SELECT S.name, S.site_id, T.executable, ST.last_run, ST.timeout, ST.arguments, T.test_id FROM SiteTests ST, Sites S, Tests T WHERE ST.state='Waiting' AND ST.test_id=T.test_id AND ST.site_id=S.site_id"
