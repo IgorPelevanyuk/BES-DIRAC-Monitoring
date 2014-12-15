@@ -170,24 +170,32 @@ class SAMDB( DB ):
             return result
         return S_OK()       
 
-    def getTestsToRun(self):
-        selectSQL = "SELECT S.name, S.site_id, T.executable, ST.last_run, ST.timeout, ST.arguments, T.test_id FROM SiteTests ST, Sites S, Tests T WHERE ST.state='Waiting' AND ST.test_id=T.test_id AND ST.site_id=S.site_id"
-        result = self._query( selectSQL )
+    def getTestsToStart(self):
+        sqlSelect = "SELECT S.name, T.executable, ST.last_run, T.period, T.test_id FROM SiteTests ST, Sites S, Tests T WHERE ST.state='Waiting' AND ST.test_id=T.test_id AND ST.site_id=S.site_id AND (UNIX_TIMESTAMP(UTC_TIMESTAMP())-UNIX_TIMESTAMP(ST.last_run))>T.period"
+        result = self._query( sqlSelect )
         if not result[ 'OK' ]:
+            gLogger.error('Failed to get tests to start')
             return result
-        print result['Value']
         return result
     
-    def getRunningTests(self):
-        selectSQL = "SELECT R.result_id, R.wms_job_id, R.last_update, ST.test_id FROM SiteTests ST, Results R WHERE R.state='JobSended' AND TtS.service_id=R.service_id AND TtS.test_id=R.test_id"
-        result = self._query( selectSQL )
+    def getTestsToStop(self):
+        sqlSelect = "SELECT R.result_id, R.wms_job_id, R.test_id, R.site_id FROM SiteTests ST, Results R, Tests T WHERE ST.status='Running' AND ST.site_id=R.site_id AND ST.test_id=R.test_id AND (UNIX_TIMESTAMP(UTC_TIMESTAMP())-UNIX_TIMESTAMP(ST.last_run))>T.timeout"
+        result = self._query( sqlSelect )
         if not result[ 'OK' ]:
+            gLogger.error('Failed to get tests to stop after timeout')
             return result
-        print result['Value']
         return result
 
+    def changeSiteTestsStatus(site_id, test_id, status):
+        sqlUpdate = "UPDATE SiteTests SET status='%s' WHERE site_id=%s AND test_id=%s" % (status, site_id, test_id)
+        result = self._update( sqlUpdate )
+        if not result[ 'OK' ]:
+            gLogger.error('Failed to get tests to stop after timeout')
+            return result
+        return result
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ REVISION LINE ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     def setResult(self, result, result_id, description="", hostname="None"):
-        sqlUpdate = "UPDATE Results SET state='%s', last_update=%s, description='%s' WHERE result_id=%s" % (result, "NOW()", description, result_id)
+        sqlUpdate = "UPDATE Results SET state='%s', last_update=%s, description='%s' WHERE result_id=%s" % (result, "UTC_TIMESTAMP()", description, result_id)
         gLogger.info(sqlUpdate)
         result = self._update( sqlUpdate )
         if not result['OK']:
@@ -224,20 +232,20 @@ class SAMDB( DB ):
         return result['Value']
 
 
-    def createNewResult(self, test_id, site_id):
-        sqlInsert = "INSERT INTO Results (test_id, site_id, last_update, state) VALUES (%s, %s, %s, '%s')" % (test_id, site_id, "NOW()",'initiated')
+    def startNewTest(self, test_id, site_id):
+        sqlInsert = "INSERT INTO Results (test_id, site_id, last_update, state) VALUES (%s, %s, %s, '%s')" % (test_id, site_id, "UTC_TIMESTAMP()",'initiated')
         result = self._update( sqlInsert )
         if not result['OK']:
             return result
         result_id = result['lastRowId']
-        sqlUpdate = "UPDATE SiteTests SET state='%s', SiteTests.last_run=%s WHERE test_id=%s AND site_id=%s" % ('Running', "NOW()", test_id, service_id)
+        sqlUpdate = "UPDATE SiteTests SET state='%s', SiteTests.last_run=%s WHERE test_id=%s AND site_id=%s" % ('Running', "UTC_TIMESTAMP()", test_id, service_id)
         result = self._update( sqlUpdate )
         if not result['OK']:
             return result
         return S_OK(result_id)
 
     def createJob(self, wms_job_id, result_id):
-        sqlInsert = "UPDATE Results set wms_job_id=%s, last_update=%s, state=%s where result_id=%s" % (wms_job_id, "NOW()", "JobSended", result_id)
+        sqlInsert = "UPDATE Results set wms_job_id=%s, last_update=%s, state=%s where result_id=%s" % (wms_job_id, "UTC_TIMESTAMP()", "JobSended", result_id)
         result = self._update( sqlInsert )
         if not result['OK']:
             return result
