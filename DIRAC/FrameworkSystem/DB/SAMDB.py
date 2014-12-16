@@ -68,11 +68,11 @@ class SAMDB( DB ):
                                                 'wms_job_id' : 'INTEGER',
                                                 'state' : 'VARCHAR(32) NOT NULL',
                                                 'description' : 'VARCHAR(256)',
-                                                'last_update' : 'DATETIME NOT NULL'
+                                                'last_update' : 'DATETIME NOT NULL',
+                                                'log' : 'TEST'
                                                 },
                                             'PrimaryKey' : 'result_id',
                                           }
-
 
         if 'States' not in tablesInDB:
           tablesD[ 'States' ] = { 'Fields' : { 'site_id' : 'INTEGER NOT NULL',
@@ -179,96 +179,93 @@ class SAMDB( DB ):
         return result
     
     def getTestsToStop(self):
-        sqlSelect = "SELECT R.result_id, R.wms_job_id, R.test_id, R.site_id FROM SiteTests ST, Results R, Tests T WHERE ST.status='Running' AND ST.site_id=R.site_id AND ST.test_id=R.test_id AND (UNIX_TIMESTAMP(UTC_TIMESTAMP())-UNIX_TIMESTAMP(ST.last_run))>T.timeout"
+        sqlSelect = "SELECT R.result_id, R.wms_job_id, R.test_id, R.site_id FROM SiteTests ST, Results R, Tests T WHERE ST.status='Running'  AND ST.site_id=R.site_id AND ST.test_id=R.test_id AND R.status='JobSended' AND (UNIX_TIMESTAMP(UTC_TIMESTAMP())-UNIX_TIMESTAMP(ST.last_run))>T.timeout"
         result = self._query( sqlSelect )
         if not result[ 'OK' ]:
             gLogger.error('Failed to get tests to stop after timeout')
             return result
         return result
 
-    def changeSiteTestsStatus(site_id, test_id, status):
+    def changeSiteTestsStatus(self, site_id, test_id, status):
         sqlUpdate = "UPDATE SiteTests SET status='%s' WHERE site_id=%s AND test_id=%s" % (status, site_id, test_id)
         result = self._update( sqlUpdate )
         if not result[ 'OK' ]:
             gLogger.error('Failed to get tests to stop after timeout')
             return result
         return result
-#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ REVISION LINE ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    def setResult(self, result, result_id, description="", hostname="None"):
+
+    def setResult(self, result, result_id, description=""):
         sqlUpdate = "UPDATE Results SET state='%s', last_update=%s, description='%s' WHERE result_id=%s" % (result, "UTC_TIMESTAMP()", description, result_id)
         gLogger.info(sqlUpdate)
         result = self._update( sqlUpdate )
         if not result['OK']:
-            gLogger.error('Failed to fill the result row')
+            gLogger.error('Failed to set the result row')
             return result
 
-        selectSQL = "SELECT R.site_id, R.test_id FROM Results R, Services S WHERE R.site_id=S.site_id AND R.result_id=%s" % (result_id)
-        result = self._query( selectSQL )
+        sqlSelect = "SELECT R.site_id, R.test_id FROM Results R WHERE R.result_id=%s" % (result_id)
+        result = self._query( sqlSelect )
         if not result[ 'OK' ]:
-            gLogger.error('Failed to et site_id and test_id')
+            gLogger.error('Failed to get site_id and test_id')
             return result
 
         site_id, test_id =  int(result['Value'][0][0]), int(result['Value'][0][1])
+        sqlUpdate = "INSERT INTO States (site_id, test_id, result_id) VALUES(%s, %s, %s) ON DUPLICATE KEY UPDATE result_id=VALUES(result_id)" % (site_id, test_id, result_id)
         sqlUpdate = "UPDATE States SET result_id=%s  WHERE site_id=%s AND test_id=%s" % (result_id, site_id, test_id)
         result = self._update( sqlUpdate )
         if not result['OK']:
-            gLogger.error('Failed to uodate UI with new test data')
+            gLogger.error('Failed to update UI with new result')
             return result
 
-        sqlUpdate = "UPDATE SiteTests SET state='%s' WHERE site_id=%s AND test_id=%s" % ("Waiting", service_id, test_id)
-        result = self._update( sqlUpdate )
-        gLogger.info(result)
+        result = self.changeSiteTestsStatus(site_id, test_id, 'Waiting')
         if not result['OK']:
+            gLogger.error('Failed to change state of SiteTest')
             return result
 
-    def setLog(self, result_id, codeout, stdout):
-        sqlSelect = "SELECT R.job_id from Results R where R.result_id=%s" % (result_id)
-        job_id = self._query( sqlSelect )['Value'][0][0]
-        if job_id==None:
-           gLogger.error("Log request of Result with no registered job")
-           return False
-        sqlInsert = "INSERT INTO Logs (job_id, codeout, stdout) VALUES(%s, '%s', '%s')" % (job_id, codeout, stdout)
+    def setLog(self, result_id, log):
+        sqlInsert = "INSERT INTO Results (result_id, log) VALUES(%s, '%s')" % (result_id, log)
         result = self._update( sqlInsert )
-        return result['Value']
-
+        if not result['OK']:
+            gLogger.error('Failed to add log for result_id %s' % result_id)
+            return result
+        return result
 
     def startNewTest(self, test_id, site_id):
-        sqlInsert = "INSERT INTO Results (test_id, site_id, last_update, state) VALUES (%s, %s, %s, '%s')" % (test_id, site_id, "UTC_TIMESTAMP()",'initiated')
+        sqlInsert = "INSERT INTO Results (test_id, site_id, last_update, state) VALUES (%s, %s, %s, '%s')" % (test_id, site_id, "UTC_TIMESTAMP()",'Initiated')
         result = self._update( sqlInsert )
         if not result['OK']:
+            gLogger.error('Failed to create new result entity')
             return result
         result_id = result['lastRowId']
-        sqlUpdate = "UPDATE SiteTests SET state='%s', SiteTests.last_run=%s WHERE test_id=%s AND site_id=%s" % ('Running', "UTC_TIMESTAMP()", test_id, service_id)
+        sqlUpdate = "UPDATE SiteTests SET state='%s', SiteTests.last_run=%s WHERE test_id=%s AND site_id=%s" % ('Running', "UTC_TIMESTAMP()", test_id, site_id)
         result = self._update( sqlUpdate )
         if not result['OK']:
+            gLogger.error('Failed to update SiteTests status')
             return result
         return S_OK(result_id)
 
-    def createJob(self, wms_job_id, result_id):
+    def addJobIdToResult(self, result_id, wms_job_id):
         sqlInsert = "UPDATE Results set wms_job_id=%s, last_update=%s, state=%s where result_id=%s" % (wms_job_id, "UTC_TIMESTAMP()", "JobSended", result_id)
         result = self._update( sqlInsert )
         if not result['OK']:
             return result
-        return S_OK(result)
-
-
+        return result
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ REVISION LINE ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     def getState(self):
-        #selectSQL = "SELECT s.name, se.name, t.name, r.state, r.description FROM States st, Sites s, Services se, Tests t, Results r WHERE s.site_id=se.site_id AND se.service_id=st.service_id AND r.result_id=st.result_id"
-        #selectSQL = "SELECT s.name, se.name, t.name, r.state, r.description, r.result_id, r.last_update, (select count(*)/(SELECT count(*) FROM Results WHERE service_id=se.service_id and test_id=t.test_id) AS Probability FROM Results WHERE state='Success' and service_id=se.service_id and test_id=t.test_id) FROM States st, Sites s, Services se, Tests t, Results r WHERE s.site_id=se.site_id AND se.service_id=st.service_id AND r.result_id=st.result_id;"
-        #selectSQL = "SELECT s.name, se.name, t.name, r.state, r.description, r.result_id, r.last_update, (select count(*)/(SELECT count(*) FROM Results WHERE service_id=se.service_id and test_id=t.test_id) AS Probability FROM Results WHERE state='Success' and service_id=se.service_id and test_id=t.test_id) as Probability FROM States st, Sites s, Services se, Tests t, Results r WHERE s.site_id=se.site_id AND se.service_id=st.service_id AND r.result_id=st.result_id AND t.test_id=r.test_id;"
-        selectSQL = "SELECT s.name, t.name, r.state, r.description, r.result_id, r.last_update, (SELECT count(*)/(SELECT count(*) FROM Results WHERE site_id=s.site_id and test_id=t.test_id and last_update>= DATE_SUB(UTC_TIMESTAMP(),INTERVAL 24 HOUR)) FROM Results WHERE state='Success' and site_id=s.site_id and test_id=t.test_id and last_update>= DATE_SUB(UTC_TIMESTAMP(),INTERVAL 24 HOUR)) as dayStat,(SELECT count(*)/(SELECT count(*) FROM Results WHERE site_id=s.site_id and test_id=t.test_id and last_update>= DATE_SUB(UTC_TIMESTAMP(),INTERVAL 48 HOUR)) FROM Results WHERE state='Success' and site_id=se.site_id and test_id=t.test_id and last_update>= DATE_SUB(UTC_TIMESTAMP(),INTERVAL 48 HOUR)) as twoStat,(SELECT count(*)/(SELECT count(*) FROM Results WHERE site_id=s.site_id and test_id=t.test_id and last_update>= DATE_SUB(UTC_TIMESTAMP(),INTERVAL 168 HOUR)) FROM Results WHERE state='Success' and site_id=s.site_id and test_id=t.test_id and last_update>= DATE_SUB(UTC_TIMESTAMP(),INTERVAL 168 HOUR)) as weekStat FROM States st, Sites s, Tests t, Results r WHERE s.site_id=st.site_id AND r.result_id=st.result_id AND t.test_id=r.test_id;"
-        print selectSQL
-        result = self._query( selectSQL )
+        #sqlSelect = "SELECT s.name, se.name, t.name, r.state, r.description FROM States st, Sites s, Services se, Tests t, Results r WHERE s.site_id=se.site_id AND se.service_id=st.service_id AND r.result_id=st.result_id"
+        #sqlSelect = "SELECT s.name, se.name, t.name, r.state, r.description, r.result_id, r.last_update, (select count(*)/(SELECT count(*) FROM Results WHERE service_id=se.service_id and test_id=t.test_id) AS Probability FROM Results WHERE state='Success' and service_id=se.service_id and test_id=t.test_id) FROM States st, Sites s, Services se, Tests t, Results r WHERE s.site_id=se.site_id AND se.service_id=st.service_id AND r.result_id=st.result_id;"
+        #sqlSelect = "SELECT s.name, se.name, t.name, r.state, r.description, r.result_id, r.last_update, (select count(*)/(SELECT count(*) FROM Results WHERE service_id=se.service_id and test_id=t.test_id) AS Probability FROM Results WHERE state='Success' and service_id=se.service_id and test_id=t.test_id) as Probability FROM States st, Sites s, Services se, Tests t, Results r WHERE s.site_id=se.site_id AND se.service_id=st.service_id AND r.result_id=st.result_id AND t.test_id=r.test_id;"
+        sqlSelect = "SELECT s.name, t.name, r.state, r.description, r.result_id, r.last_update, (SELECT count(*)/(SELECT count(*) FROM Results WHERE site_id=s.site_id and test_id=t.test_id and last_update>= DATE_SUB(UTC_TIMESTAMP(),INTERVAL 24 HOUR)) FROM Results WHERE state='Success' and site_id=s.site_id and test_id=t.test_id and last_update>= DATE_SUB(UTC_TIMESTAMP(),INTERVAL 24 HOUR)) as dayStat,(SELECT count(*)/(SELECT count(*) FROM Results WHERE site_id=s.site_id and test_id=t.test_id and last_update>= DATE_SUB(UTC_TIMESTAMP(),INTERVAL 48 HOUR)) FROM Results WHERE state='Success' and site_id=se.site_id and test_id=t.test_id and last_update>= DATE_SUB(UTC_TIMESTAMP(),INTERVAL 48 HOUR)) as twoStat,(SELECT count(*)/(SELECT count(*) FROM Results WHERE site_id=s.site_id and test_id=t.test_id and last_update>= DATE_SUB(UTC_TIMESTAMP(),INTERVAL 168 HOUR)) FROM Results WHERE state='Success' and site_id=s.site_id and test_id=t.test_id and last_update>= DATE_SUB(UTC_TIMESTAMP(),INTERVAL 168 HOUR)) as weekStat FROM States st, Sites s, Tests t, Results r WHERE s.site_id=st.site_id AND r.result_id=st.result_id AND t.test_id=r.test_id;"
+        result = self._query( sqlSelect )
         print result['Value']
         return result
 
     def getSiteHistory(self, site):
-        selectSQL = "SELECT r.last_update, r.state FROM Services se, Sites s, Results r WHERE s.name='%s' AND s.site_id=se.site_id AND r.service_id=se.service_id;" % site
-        result = self._query( selectSQL )
+        sqlSelect = "SELECT r.last_update, r.state FROM Services se, Sites s, Results r WHERE s.name='%s' AND s.site_id=se.site_id AND r.service_id=se.service_id;" % site
+        result = self._query( sqlSelect )
         return result
 
 
     def getSiteMonthAvailability(self, site):
-        selectSQL = "SELECT t.Date, t.Day, s.Success/t.Count  FROM (SELECT DATE(r.last_update) as Date, DAY(r.last_update) as Day, COUNT(r.last_update) as Success   FROM Results r, Services se, Sites s  WHERE s.name='%s' AND se.site_id=s.site_id AND r.service_id=se.service_id AND r.state='Success'  GROUP BY DAY(last_update) ORDER BY last_update ASC) s, (SELECT DATE(r.last_update) as Date, DAY(r.last_update) as Day, COUNT(r.last_update) as Count   FROM Results r, Services se, Sites s  WHERE s.name='%s' AND se.site_id=s.site_id AND r.service_id=se.service_id GROUP BY DAY(last_update) ORDER BY last_update ASC) t WHERE t.Date=s.Date ORDER BY t.Date ASC" % (site, site)
-        result = self._query( selectSQL )
+        sqlSelect = "SELECT t.Date, t.Day, s.Success/t.Count  FROM (SELECT DATE(r.last_update) as Date, DAY(r.last_update) as Day, COUNT(r.last_update) as Success   FROM Results r, Services se, Sites s  WHERE s.name='%s' AND se.site_id=s.site_id AND r.service_id=se.service_id AND r.state='Success'  GROUP BY DAY(last_update) ORDER BY last_update ASC) s, (SELECT DATE(r.last_update) as Date, DAY(r.last_update) as Day, COUNT(r.last_update) as Count   FROM Results r, Services se, Sites s  WHERE s.name='%s' AND se.site_id=s.site_id AND r.service_id=se.service_id GROUP BY DAY(last_update) ORDER BY last_update ASC) t WHERE t.Date=s.Date ORDER BY t.Date ASC" % (site, site)
+        result = self._query( sqlSelect )
         return result
