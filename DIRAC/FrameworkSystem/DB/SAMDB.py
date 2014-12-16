@@ -239,6 +239,7 @@ class SAMDB( DB ):
         if not result['OK']:
             gLogger.error('Failed to change state of SiteTest')
             return result
+        return S_OK()
 
     def setLog(self, result_id, log):
         sqlInsert = "INSERT INTO Results (result_id, log) VALUES(%s, '%s')" % (result_id, log)
@@ -263,7 +264,7 @@ class SAMDB( DB ):
         return S_OK(result_id)
 
     def addJobIdToResult(self, result_id, wms_job_id):
-        sqlInsert = "UPDATE Results set wms_job_id=%s, last_update=%s, state=%s where result_id=%s" % (wms_job_id, "UTC_TIMESTAMP()", "JobSended", result_id)
+        sqlInsert = "UPDATE Results set wms_job_id=%s, last_update=%s, state='%s' where result_id=%s" % (wms_job_id, "UTC_TIMESTAMP()", "JobSended", result_id)
         result = self._update( sqlInsert )
         if not result['OK']:
             return result
