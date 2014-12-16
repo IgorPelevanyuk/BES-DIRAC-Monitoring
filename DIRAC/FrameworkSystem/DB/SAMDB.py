@@ -144,6 +144,12 @@ class SAMDB( DB ):
         if not result[ 'OK' ]:
             gLogger.error('Failed to delete site_id %s for site_name %s from Sites table' % (site_id, site_name))
             return result
+
+        # Delete site from UI
+        sqlDelete = "DELETE FROM States WHERE site_id=%s" % (site_id)
+        if not result[ 'OK' ]:
+            gLogger.error('Failed to delete site_id %s for site_name %s from States table' % (site_id, site_name))
+            return result
         return S_OK()
 
     def deleteTest(self, test_name):
@@ -167,6 +173,12 @@ class SAMDB( DB ):
         result = self._transaction( sqlDelete )
         if not result[ 'OK' ]:
             gLogger.error('Failed to delete test_id %s for test_name %s from Tests table' % (test_id, test_name))
+            return result
+
+        # Delete test from UI
+        sqlDelete = "DELETE FROM States WHERE test_id=%s" % (test_id)
+        if not result[ 'OK' ]:
+            gLogger.error('Failed to delete test_id %s for test_name %s from States table' % (test_id, test_name))
             return result
         return S_OK()       
 
@@ -218,7 +230,6 @@ class SAMDB( DB ):
 
         site_id, test_id =  int(result['Value'][0][0]), int(result['Value'][0][1])
         sqlUpdate = "INSERT INTO States (site_id, test_id, result_id) VALUES(%s, %s, %s) ON DUPLICATE KEY UPDATE result_id=VALUES(result_id)" % (site_id, test_id, result_id)
-        sqlUpdate = "UPDATE States SET result_id=%s  WHERE site_id=%s AND test_id=%s" % (result_id, site_id, test_id)
         result = self._update( sqlUpdate )
         if not result['OK']:
             gLogger.error('Failed to update UI with new result')
