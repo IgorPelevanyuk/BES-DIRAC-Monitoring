@@ -13,6 +13,34 @@ from DIRAC.Interfaces.API.Dirac                             import Dirac
 from DIRAC.FrameworkSystem.DB.SAMDB                         import SAMDB
 import os
 class SAMLauncherAgent( AgentModule ):
+    
+    def _updateSiteList(self):
+        sitesInConfig = []
+        #Calculate Max pledges for Cluster and GRIDs
+        for directory in  gConfig.getSections('/Resources/Sites')['Value']:
+            for site in gConfig.getSections('/Resources/Sites/'+directory)['Value']:
+                sitesInConfig.append(site)
+        dao = SAMDB()
+        result = dao.getSiteList()
+        if result['OK']:
+            sitesInDB = result['Value']
+        else:
+            gLogger.error('Failed to update site list')
+            return
+        siteToAdd = []
+        siteToDelete = []
+        for site in sitesInConfig:
+            if site not in sitesInDB:
+                siteToAdd.append(site)
+        for site in sitesInDB:
+            if site not in sitesInConfig:
+                siteToDelete.append(site)
+        for site in siteToDelete:
+            dao.deleteSite(site)
+        for site in siteToAdd:
+            dao.addNewSite(site)
+        return S_OK()
+
 
     def _startNewTests(self):
         # Get list of tests
@@ -91,6 +119,7 @@ class SAMLauncherAgent( AgentModule ):
         return S_OK()
   
     def beginExecution(self):
+        self._updateSiteList()
         self.log.info( "CYCLE START!!" )
     
         return S_OK()

@@ -186,6 +186,14 @@ class SAMDB( DB ):
             return result
         return result
 
+    def getSiteList(self):
+    	sqlSelect = "SELECT name FROM Sites"
+    	result = self._query( sqlSelect )
+    	if not result[ 'OK' ]:
+            gLogger.error('Failed to get site list')
+            return result
+        return result
+
     def changeSiteTestsStatus(self, site_id, test_id, status):
         sqlUpdate = "UPDATE SiteTests SET status='%s' WHERE site_id=%s AND test_id=%s" % (status, site_id, test_id)
         result = self._update( sqlUpdate )
