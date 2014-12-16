@@ -3,7 +3,7 @@ B = A.InnerRPCClient
 import DIRAC.Core.DISET.private.BaseClient as C
 def foo(serviceName, serviceTuple = False, setup = False ):
     print 'Hey'
-    return 'dips://vm162.jinr.ru:2170/Framework/SAM'
+    return 'dips://badger01.ihep.ac.cn:9280/Framework/SAM'
 
 C.getServiceURL = foo
 x = A.RPCClient("Framework/SAM")
