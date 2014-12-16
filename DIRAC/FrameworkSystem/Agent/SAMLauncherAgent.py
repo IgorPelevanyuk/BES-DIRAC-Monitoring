@@ -16,6 +16,7 @@ class SAMLauncherAgent( AgentModule ):
     
     def _updateSiteList(self):
         sitesInConfig = []
+        sitesInDB = []
         #Calculate Max pledges for Cluster and GRIDs
         for directory in  gConfig.getSections('/Resources/Sites')['Value']:
             for site in gConfig.getSections('/Resources/Sites/'+directory)['Value']:
@@ -23,7 +24,8 @@ class SAMLauncherAgent( AgentModule ):
         dao = SAMDB()
         result = dao.getSiteList()
         if result['OK']:
-            sitesInDB = result['Value']
+            for site in result['Value']:
+                sitesInDB.append(site[0])
         else:
             gLogger.error('Failed to update site list')
             return
@@ -68,8 +70,8 @@ class SAMLauncherAgent( AgentModule ):
             gLogger.info("SEND Job: "+site_name+"  "+executable[0])
             dirac = Dirac()
             j = Job()
-            j.setExecutable('python' , arguments=executable[0]+" "+result_id)
-            j.setInputSandbox(executable)
+            j.setExecutable('python' , arguments = executable[0]+" "+str(result_id))
+            j.setInputSandbox(['/opt/dirac/pro/DIRAC/FrameworkSystem/Agent/sam_tests/'+executable[0]])
             j.setName(test_name)
             j.setDestination( site_name )
             result = dirac.submit(j)
@@ -77,7 +79,7 @@ class SAMLauncherAgent( AgentModule ):
                 dao.addJobIdToResult(result_id, result['Value'])
             else:
                 gLogger.error("Failed to submit the job: " + executable[0] + "to site "+site_name)
-                dao.setResult('Fail', result_id, 'Failed to submit the job:'+str(result))
+                dao.setResult('Fail', result_id, 'Failed to submit the job: '+str(result['Message']))
         return S_OK()
 
     def _stopOldTests(self):

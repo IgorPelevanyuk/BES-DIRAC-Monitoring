@@ -191,7 +191,7 @@ class SAMDB( DB ):
         return result
     
     def getTestsToStop(self):
-        sqlSelect = "SELECT R.result_id, R.wms_job_id, T.timeout FROM SiteTests ST, Results R, Tests T WHERE ST.status='Running'  AND ST.site_id=R.site_id AND ST.test_id=R.test_id AND R.status='JobSended' AND (UNIX_TIMESTAMP(UTC_TIMESTAMP())-UNIX_TIMESTAMP(ST.last_run))>T.timeout"
+        sqlSelect = "SELECT R.result_id, R.wms_job_id, T.timeout FROM SiteTests ST, Results R, Tests T WHERE ST.state='Running'  AND ST.site_id=R.site_id AND ST.test_id=R.test_id AND R.state='JobSended' AND (UNIX_TIMESTAMP(UTC_TIMESTAMP())-UNIX_TIMESTAMP(ST.last_run))>T.timeout"
         result = self._query( sqlSelect )
         if not result[ 'OK' ]:
             gLogger.error('Failed to get tests to stop after timeout')
@@ -206,8 +206,8 @@ class SAMDB( DB ):
             return result
         return result
 
-    def changeSiteTestsStatus(self, site_id, test_id, status):
-        sqlUpdate = "UPDATE SiteTests SET status='%s' WHERE site_id=%s AND test_id=%s" % (status, site_id, test_id)
+    def changeSiteTestsState(self, site_id, test_id, state):
+        sqlUpdate = "UPDATE SiteTests SET state='%s' WHERE site_id=%s AND test_id=%s" % (state, site_id, test_id)
         result = self._update( sqlUpdate )
         if not result[ 'OK' ]:
             gLogger.error('Failed to get tests to stop after timeout')
@@ -235,7 +235,7 @@ class SAMDB( DB ):
             gLogger.error('Failed to update UI with new result')
             return result
 
-        result = self.changeSiteTestsStatus(site_id, test_id, 'Waiting')
+        result = self.changeSiteTestsState(site_id, test_id, 'Waiting')
         if not result['OK']:
             gLogger.error('Failed to change state of SiteTest')
             return result
