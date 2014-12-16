@@ -69,7 +69,7 @@ class SAMDB( DB ):
                                                 'state' : 'VARCHAR(32) NOT NULL',
                                                 'description' : 'VARCHAR(256)',
                                                 'last_update' : 'DATETIME NOT NULL',
-                                                'log' : 'TEST'
+                                                'log' : 'TEXT'
                                                 },
                                             'PrimaryKey' : 'result_id',
                                           }
@@ -171,7 +171,7 @@ class SAMDB( DB ):
         return S_OK()       
 
     def getTestsToStart(self):
-        sqlSelect = "SELECT S.name, T.executable, ST.last_run, T.period, T.test_id FROM SiteTests ST, Sites S, Tests T WHERE ST.state='Waiting' AND ST.test_id=T.test_id AND ST.site_id=S.site_id AND (UNIX_TIMESTAMP(UTC_TIMESTAMP())-UNIX_TIMESTAMP(ST.last_run))>T.period"
+        sqlSelect = "SELECT S.site_id, T.test_id, S.name, T.name, T.executable FROM SiteTests ST, Sites S, Tests T WHERE ST.state='Waiting' AND ST.test_id=T.test_id AND ST.site_id=S.site_id AND (UNIX_TIMESTAMP(UTC_TIMESTAMP())-UNIX_TIMESTAMP(ST.last_run))>T.period"
         result = self._query( sqlSelect )
         if not result[ 'OK' ]:
             gLogger.error('Failed to get tests to start')
@@ -179,7 +179,7 @@ class SAMDB( DB ):
         return result
     
     def getTestsToStop(self):
-        sqlSelect = "SELECT R.result_id, R.wms_job_id, R.test_id, R.site_id FROM SiteTests ST, Results R, Tests T WHERE ST.status='Running'  AND ST.site_id=R.site_id AND ST.test_id=R.test_id AND R.status='JobSended' AND (UNIX_TIMESTAMP(UTC_TIMESTAMP())-UNIX_TIMESTAMP(ST.last_run))>T.timeout"
+        sqlSelect = "SELECT R.result_id, R.wms_job_id, T.timeout FROM SiteTests ST, Results R, Tests T WHERE ST.status='Running'  AND ST.site_id=R.site_id AND ST.test_id=R.test_id AND R.status='JobSended' AND (UNIX_TIMESTAMP(UTC_TIMESTAMP())-UNIX_TIMESTAMP(ST.last_run))>T.timeout"
         result = self._query( sqlSelect )
         if not result[ 'OK' ]:
             gLogger.error('Failed to get tests to stop after timeout')
@@ -229,7 +229,7 @@ class SAMDB( DB ):
             return result
         return result
 
-    def startNewTest(self, test_id, site_id):
+    def startNewTest(self, site_id, test_id):
         sqlInsert = "INSERT INTO Results (test_id, site_id, last_update, state) VALUES (%s, %s, %s, '%s')" % (test_id, site_id, "UTC_TIMESTAMP()",'Initiated')
         result = self._update( sqlInsert )
         if not result['OK']:
