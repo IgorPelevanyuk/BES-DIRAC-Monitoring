@@ -214,7 +214,7 @@ class SAMDB( DB ):
             return result
         return result
 
-    def setResult(self, result, result_id, description=""):
+    def setResult(self, result, result_id, description="", hostname=""):
         sqlUpdate = "UPDATE Results SET state='%s', last_update=%s, description='%s' WHERE result_id=%s" % (result, "UTC_TIMESTAMP()", description, result_id)
         gLogger.info(sqlUpdate)
         result = self._update( sqlUpdate )
