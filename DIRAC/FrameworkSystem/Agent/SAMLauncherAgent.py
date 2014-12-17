@@ -10,10 +10,31 @@ from DIRAC                                                  import gLogger, gCon
 from DIRAC.Core.Base.AgentModule                            import AgentModule
 from DIRAC.Interfaces.API.Job                               import Job
 from DIRAC.Interfaces.API.Dirac                             import Dirac
+from DIRAC.Interfaces.API.DiracAdmin                        import DiracAdmin
 from DIRAC.FrameworkSystem.DB.SAMDB                         import SAMDB
 import os
+
+SAM_TEST_DIR = '/opt/dirac/pro/DIRAC/FrameworkSystem/Agent/sam_tests/'
 class SAMLauncherAgent( AgentModule ):
+
+    def _getBannedSites(self):
+        result = self.diracAdmin.getBannedSites()
+        if result['OK']:
+            return result['Value']
+        else:
+            gLogger.error(result['Message'])
+        return []
     
+    def _submitJob(self, result_id, executable, test_name, site_name):
+        executable = executable.split('&')
+        j = Job()
+        j.setExecutable('python' , arguments = executable[0]+" "+str(result_id))
+        j.setInputSandbox([SAM_TEST_DIR + executable[0]])
+        j.setName(test_name)
+        j.setDestination( site_name )
+        result = self.dirac.submit(j)
+        return result
+ 
     def _updateSiteList(self):
         sitesInConfig = []
         sitesInDB = []
@@ -21,8 +42,7 @@ class SAMLauncherAgent( AgentModule ):
         for directory in  gConfig.getSections('/Resources/Sites')['Value']:
             for site in gConfig.getSections('/Resources/Sites/'+directory)['Value']:
                 sitesInConfig.append(site)
-        dao = SAMDB()
-        result = dao.getSiteList()
+        result = self.samdb_dao.getSiteList()
         if result['OK']:
             for site in result['Value']:
                 sitesInDB.append(site[0])
@@ -38,21 +58,22 @@ class SAMLauncherAgent( AgentModule ):
             if site not in sitesInConfig:
                 siteToDelete.append(site)
         for site in siteToDelete:
-            dao.deleteSite(site)
+            self.samdb_dao.deleteSite(site)
         for site in siteToAdd:
-            dao.addNewSite(site)
+            self.samdb_dao.addNewSite(site)
         return S_OK()
 
 
     def _startNewTests(self):
         # Get list of tests
         testsToStart = []
-        dao = SAMDB()
-        result = dao.getTestsToStart()
+        result = self.samdb_dao.getTestsToStart()
         if not result['OK']:
             gLogger.error('Failed to load test to start')
         else:
             testsToStart = result['Value']
+
+        banned_sites = self._getBannedSites()
 
         # Create new Result db entity
         for test in testsToStart:
@@ -61,32 +82,26 @@ class SAMLauncherAgent( AgentModule ):
             site_name = test[2]
             test_name = test[3]
             executable = test[4]
-
-            result = dao.startNewTest(site_id, test_id)
+            
+            result = self.samdb_dao.startNewTest(site_id, test_id)
             if not result['OK']:
                 break
             result_id = result['Value']
-            executable = executable.split('&')
-            gLogger.info("SEND Job: "+site_name+"  "+executable[0])
-            dirac = Dirac()
-            j = Job()
-            j.setExecutable('python' , arguments = executable[0]+" "+str(result_id))
-            j.setInputSandbox(['/opt/dirac/pro/DIRAC/FrameworkSystem/Agent/sam_tests/'+executable[0]])
-            j.setName(test_name)
-            j.setDestination( site_name )
-            result = dirac.submit(j)
+            if site_name in banned_sites:
+                self.samdb_dao.setResult("Banned", result_id, 'Site is Banned')
+                continue
+            result = self._submitJob(result_id, executable, test_name, site_name)
             if result['OK']:
-                dao.addJobIdToResult(result_id, result['Value'])
+                self.samdb_dao.addJobIdToResult(result_id, result['Value'])
             else:
                 gLogger.error("Failed to submit the job: " + executable[0] + "to site "+site_name)
-                dao.setResult('Fail', result_id, 'Failed to submit the job: '+str(result['Message']))
+                self.samdb_dao.setResult('Fail', result_id, 'Failed to submit the job: '+str(result['Message']))
         return S_OK()
 
     def _stopOldTests(self):
         # Get list of tests
         testsToStop = []
-        dao = SAMDB()
-        result = dao.getTestsToStop()
+        result = self.samdb_dao.getTestsToStop()
         if not result['OK']:
             gLogger.error('Failed to load test to stop')
         else:
@@ -98,7 +113,7 @@ class SAMLauncherAgent( AgentModule ):
             wms_job_id = test[1]
             timeout = test[2]
 
-            dao.setResult('Fail', result_id, 'Timeout fail after '+str(timeout/60)+' min of silence')
+            self.samdb_dao.setResult('Fail', result_id, 'Timeout fail after '+str(timeout/60)+' min of silence')
           
             dirac = Dirac()
             result = dirac.delete(int(wms_job_id))
@@ -110,6 +125,10 @@ class SAMLauncherAgent( AgentModule ):
         return S_OK()
 
     def initialize( self ):
+        self.diracAdmin = DiracAdmin()
+        self.dirac = Dirac()
+        self.samdb_dao = SAMDB()
+
         return S_OK()
 
     def execute( self ):
