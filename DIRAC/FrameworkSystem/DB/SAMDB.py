@@ -163,7 +163,7 @@ class SAMDB( DB ):
 
         # Delete required test_id from SiteTests
         sqlDelete = "DELETE FROM SiteTests WHERE test_id=%s" % (test_id)
-        result = self._transaction(sqlQuerry)
+        result = self._transaction(sqlDelete)
         if not result[ 'OK' ]:
             gLogger.error('Failed to delete test_id %s for test_name %s from SiteTests table' % (test_id, test_name))
             return result
@@ -177,6 +177,7 @@ class SAMDB( DB ):
 
         # Delete test from UI
         sqlDelete = "DELETE FROM States WHERE test_id=%s" % (test_id)
+        result = self._transaction( sqlDelete )
         if not result[ 'OK' ]:
             gLogger.error('Failed to delete test_id %s for test_name %s from States table' % (test_id, test_name))
             return result

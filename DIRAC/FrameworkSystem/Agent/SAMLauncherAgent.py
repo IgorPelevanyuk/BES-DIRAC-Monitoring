@@ -17,6 +17,14 @@ import os
 SAM_TEST_DIR = '/opt/dirac/pro/DIRAC/FrameworkSystem/Agent/sam_tests/'
 class SAMLauncherAgent( AgentModule ):
 
+    def _getJobStatus(self, wms_job_id):
+        status, message = "", ""
+        result = dirac.status(wms_job_id)
+        if result['OK']:
+            responce = result['Value'] [wms_job_id]
+            return S_OK((responce['Status'], responce['MinorStatus']))
+        return S_ERROR()
+
     def _getBannedSites(self):
         result = self.diracAdmin.getBannedSites()
         if result['OK']:
@@ -115,8 +123,15 @@ class SAMLauncherAgent( AgentModule ):
             result_id = test[0]
             wms_job_id = test[1]
             timeout = test[2]
-
-            self.samdb_dao.setResult('Timeout', result_id, 'Timeout fail after '+str(timeout/60)+' min of silence')
+            
+            result = self._getJobStatus(int(wms_job_id))
+            if result['OK']:
+                if result['Value'][0]=='Fail':
+                    self.samdb_dao.setResult('Fail', result_id, result['Value'][1])
+                else:
+                    self.samdb_dao.setResult('Timeout', result_id, 'Timeout fail after '+str(timeout/60)+' min of silence')
+            else:
+                self.samdb_dao.setResult('Timeout', result_id, 'WARNING: Unable to get status. Timeout fail after '+str(timeout/60)+' min of silence')
           
             dirac = Dirac()
             result = dirac.delete(int(wms_job_id))
