@@ -129,25 +129,26 @@ class SAMDB( DB ):
         if not result[ 'OK' ]:
             gLogger.error('Failed to find site_name %s' % (site_name))
             return result
-        site_id = result['Value'][0]
+        site_id = result['Value'][0][0]
 
         # Delete required site_id from SiteTests
         sqlDelete = "DELETE FROM SiteTests WHERE site_id=%s" % (site_id)
-        result = self._transaction(sqlDelete)
+        result = self._update(sqlDelete)
         if not result[ 'OK' ]:
+            gLogger.info(str(result))
             gLogger.error('Failed to delete site_id %s for site_name %s from SiteTests table' % (site_id, site_name))
             return result
 
         # Delete required site_id from Sites
         sqlDelete = "DELETE FROM Sites WHERE site_id=%s" % (site_id)
-        result = self._transaction( sqlDelete )
+        result = self._update( sqlDelete )
         if not result[ 'OK' ]:
             gLogger.error('Failed to delete site_id %s for site_name %s from Sites table' % (site_id, site_name))
             return result
 
         # Delete site from UI
         sqlDelete = "DELETE FROM States WHERE site_id=%s" % (site_id)
-        result = self._transaction( sqlDelete )
+        result = self._update( sqlDelete )
         if not result[ 'OK' ]:
             gLogger.error('Failed to delete site_id %s for site_name %s from States table' % (site_id, site_name))
             return result
