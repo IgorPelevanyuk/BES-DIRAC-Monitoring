@@ -19,7 +19,7 @@ class SAMLauncherAgent( AgentModule ):
 
     def _getJobStatus(self, wms_job_id):
         status, message = "", ""
-        result = dirac.status(wms_job_id)
+        result = self.dirac.status(wms_job_id)
         if result['OK']:
             responce = result['Value'] [wms_job_id]
             return S_OK((responce['Status'], responce['MinorStatus']))
@@ -62,6 +62,8 @@ class SAMLauncherAgent( AgentModule ):
             return
         siteToAdd = []
         siteToDelete = []
+        gLogger.info(siteToAdd)
+        gLogger.info(sitesInDB)
         for site in sitesInConfig:
             if site not in sitesInDB:
                 siteToAdd.append(site)
