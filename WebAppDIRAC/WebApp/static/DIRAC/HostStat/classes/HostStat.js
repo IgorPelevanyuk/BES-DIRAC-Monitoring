@@ -61,6 +61,7 @@ Ext.define('DIRAC.HostStat.classes.HostStat', {
         return parseInt(res).toString();
       } 
       function rateColorer(val) {
+        console.log('RATE_COLORER');
         if (val !=0)
           return '<span style="background:rgb('+gradientR(val)+','+gradientG(val)+',0);">'+val.toFixed(2)+'</span>';
         else
@@ -89,7 +90,7 @@ Ext.define('DIRAC.HostStat.classes.HostStat', {
                 type : 'json',
                 root : 'result'
             },
-            timeout : 10000
+            timeout : 100000
         },
         fields : [{name : 'site', type : 'string' },
                   {name : 'host', type: 'string'},
@@ -109,9 +110,10 @@ Ext.define('DIRAC.HostStat.classes.HostStat', {
         pageSize : 20,
 
     });
-      var WIDTH_S = 30;
-      var WIDTH_M = 40;
-      var WIDTH_XL = 150;
+      var WIDTH_S = 50;
+      var WIDTH_M = 70;
+      var WIDTH_XL = 200;
+      console.log('TOUCH')
       me.grid = Ext.create('Ext.grid.Panel', {
         region : 'center',
         store : me.dataStore,

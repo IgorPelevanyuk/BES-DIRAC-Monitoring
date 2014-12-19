@@ -191,7 +191,7 @@ class SAMDB( DB ):
         return result
     
     def getTestsToStop(self):
-        sqlSelect = "SELECT R.result_id, R.wms_job_id, T.timeout FROM SiteTests ST, Results R, Tests T WHERE ST.state='Running'  AND ST.site_id=R.site_id AND ST.test_id=R.test_id AND R.state='JobSended' AND (UNIX_TIMESTAMP(UTC_TIMESTAMP())-UNIX_TIMESTAMP(ST.last_run))>T.timeout"
+        sqlSelect = "SELECT R.result_id, R.wms_job_id, T.timeout FROM SiteTests ST, Results R, Tests T WHERE ST.state='Running'  AND ST.site_id=R.site_id AND ST.test_id=R.test_id AND R.state='JobSended' AND T.test_id=R.test_id AND (UNIX_TIMESTAMP(UTC_TIMESTAMP())-UNIX_TIMESTAMP(ST.last_run))>T.timeout"
         result = self._query( sqlSelect )
         if not result[ 'OK' ]:
             gLogger.error('Failed to get tests to stop after timeout')
@@ -214,7 +214,7 @@ class SAMDB( DB ):
             return result
         return result
 
-    def setResult(self, result, result_id, description=""):
+    def setResult(self, result, result_id, description="", hostname=""):
         sqlUpdate = "UPDATE Results SET state='%s', last_update=%s, description='%s' WHERE result_id=%s" % (result, "UTC_TIMESTAMP()", description, result_id)
         gLogger.info(sqlUpdate)
         result = self._update( sqlUpdate )
@@ -271,10 +271,7 @@ class SAMDB( DB ):
         return result
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ REVISION LINE ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     def getState(self):
-        #sqlSelect = "SELECT s.name, se.name, t.name, r.state, r.description FROM States st, Sites s, Services se, Tests t, Results r WHERE s.site_id=se.site_id AND se.service_id=st.service_id AND r.result_id=st.result_id"
-        #sqlSelect = "SELECT s.name, se.name, t.name, r.state, r.description, r.result_id, r.last_update, (select count(*)/(SELECT count(*) FROM Results WHERE service_id=se.service_id and test_id=t.test_id) AS Probability FROM Results WHERE state='Success' and service_id=se.service_id and test_id=t.test_id) FROM States st, Sites s, Services se, Tests t, Results r WHERE s.site_id=se.site_id AND se.service_id=st.service_id AND r.result_id=st.result_id;"
-        #sqlSelect = "SELECT s.name, se.name, t.name, r.state, r.description, r.result_id, r.last_update, (select count(*)/(SELECT count(*) FROM Results WHERE service_id=se.service_id and test_id=t.test_id) AS Probability FROM Results WHERE state='Success' and service_id=se.service_id and test_id=t.test_id) as Probability FROM States st, Sites s, Services se, Tests t, Results r WHERE s.site_id=se.site_id AND se.service_id=st.service_id AND r.result_id=st.result_id AND t.test_id=r.test_id;"
-        sqlSelect = "SELECT s.name, t.name, r.state, r.description, r.result_id, r.last_update, (SELECT count(*)/(SELECT count(*) FROM Results WHERE site_id=s.site_id and test_id=t.test_id and last_update>= DATE_SUB(UTC_TIMESTAMP(),INTERVAL 24 HOUR)) FROM Results WHERE state='Success' and site_id=s.site_id and test_id=t.test_id and last_update>= DATE_SUB(UTC_TIMESTAMP(),INTERVAL 24 HOUR)) as dayStat,(SELECT count(*)/(SELECT count(*) FROM Results WHERE site_id=s.site_id and test_id=t.test_id and last_update>= DATE_SUB(UTC_TIMESTAMP(),INTERVAL 48 HOUR)) FROM Results WHERE state='Success' and site_id=se.site_id and test_id=t.test_id and last_update>= DATE_SUB(UTC_TIMESTAMP(),INTERVAL 48 HOUR)) as twoStat,(SELECT count(*)/(SELECT count(*) FROM Results WHERE site_id=s.site_id and test_id=t.test_id and last_update>= DATE_SUB(UTC_TIMESTAMP(),INTERVAL 168 HOUR)) FROM Results WHERE state='Success' and site_id=s.site_id and test_id=t.test_id and last_update>= DATE_SUB(UTC_TIMESTAMP(),INTERVAL 168 HOUR)) as weekStat FROM States st, Sites s, Tests t, Results r WHERE s.site_id=st.site_id AND r.result_id=st.result_id AND t.test_id=r.test_id;"
+        sqlSelect = "SELECT s.name, t.name, r.state, UNIX_TIMESTAMP(UTC_TIMESTAMP())-UNIX_TIMESTAMP(r.last_update) as last, r.description FROM States st, Sites s, Tests t, Results r WHERE s.site_id=r.site_id AND r.result_id=st.result_id AND s.site_id=st.site_id AND st.test_id=t.test_id"
         result = self._query( sqlSelect )
         print result['Value']
         return result

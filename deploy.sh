@@ -6,4 +6,10 @@ cp DIRAC/FrameworkSystem/Client/SAMClient.py /opt/dirac/pro/DIRAC/FrameworkSyste
 
 cp DIRAC/FrameworkSystem/Agent/SAMLauncherAgent.py /opt/dirac/pro/DIRAC/FrameworkSystem/Agent/.
 
-cp sam_tests/wms_test.py /opt/dirac/pro/DIRAC/FrameworkSystem/Agent/sam_tests/.
+cp sam_tests/* /opt/dirac/pro/DIRAC/FrameworkSystem/Agent/sam_tests/.
+
+cp WebAppDIRAC/WebApp/handler/SAMHandler.py /opt/dirac/pro/WebAppDIRAC/WebApp/handler/SAMHandler.py
+cp -r WebAppDIRAC/WebApp/static/DIRAC/SAM /opt/dirac/pro/WebAppDIRAC/WebApp/static/DIRAC/
+
+cp WebAppDIRAC/WebApp/handler/BusynessMonitorHandler.py /opt/dirac/pro/WebAppDIRAC/WebApp/handler/BusynessMonitorHandler.py
+cp -r WebAppDIRAC/WebApp/static/DIRAC/BusynessMonitor  /opt/dirac/pro/WebAppDIRAC/WebApp/static/DIRAC/.
