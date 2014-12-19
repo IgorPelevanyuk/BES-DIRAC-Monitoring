@@ -133,7 +133,7 @@ class SAMDB( DB ):
 
         # Delete required site_id from SiteTests
         sqlDelete = "DELETE FROM SiteTests WHERE site_id=%s" % (site_id)
-        result = self._transaction(sqlQuerry)
+        result = self._transaction(sqlDelete)
         if not result[ 'OK' ]:
             gLogger.error('Failed to delete site_id %s for site_name %s from SiteTests table' % (site_id, site_name))
             return result
