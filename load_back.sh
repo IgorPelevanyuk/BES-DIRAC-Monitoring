@@ -11,3 +11,6 @@ cp /opt/dirac/pro/DIRAC/FrameworkSystem/Agent/SAMLauncherAgent.py DIRAC/Framewor
 cp /opt/dirac/pro/WebAppDIRAC/WebApp/handler/SAMHandler.py WebAppDIRAC/WebApp/handler/SAMHandler.py
 cp -r /opt/dirac/pro/WebAppDIRAC/WebApp/static/DIRAC/SAM WebAppDIRAC/WebApp/static/DIRAC/
 
+cp /opt/dirac/pro/WebAppDIRAC/WebApp/handler/BusynessMonitorHandler.py WebAppDIRAC/WebApp/handler/BusynessMonitorHandler.py
+cp -r /opt/dirac/pro/WebAppDIRAC/WebApp/static/DIRAC/BusynessMonitor WebAppDIRAC/WebApp/static/DIRAC/
+
