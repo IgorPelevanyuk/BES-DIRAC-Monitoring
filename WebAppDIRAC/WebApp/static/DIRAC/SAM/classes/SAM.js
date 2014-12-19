@@ -1,4 +1,4 @@
-Ext.define('DIRAC.Test.classes.Test', {
+Ext.define('DIRAC.SAM.classes.SAM', {
     extend : 'Ext.dirac.core.Module',
     requires :['Ext.grid.*',
                'Ext.data.*',
@@ -69,7 +69,7 @@ Ext.define('DIRAC.Test.classes.Test', {
 
         proxy : {
             type : 'ajax',
-            url : GLOBAL.BASE_URL + 'Test/getData',
+            url : GLOBAL.BASE_URL + 'SAM/getData',
             reader : {
                 type : 'json',
                 root : 'result'

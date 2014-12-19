@@ -11,7 +11,7 @@ def trunc(f):
     return temp
   
 
-class TestHandler(WebHandler):
+class SAMHandler(WebHandler):
 
     AUTH_PROPS = "all"
 
