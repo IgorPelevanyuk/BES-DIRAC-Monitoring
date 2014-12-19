@@ -13,3 +13,7 @@ cp -r WebAppDIRAC/WebApp/static/DIRAC/SAM /opt/dirac/pro/WebAppDIRAC/WebApp/stat
 
 cp WebAppDIRAC/WebApp/handler/BusynessMonitorHandler.py /opt/dirac/pro/WebAppDIRAC/WebApp/handler/BusynessMonitorHandler.py
 cp -r WebAppDIRAC/WebApp/static/DIRAC/BusynessMonitor  /opt/dirac/pro/WebAppDIRAC/WebApp/static/DIRAC/.
+
+cp WebAppDIRAC/WebApp/handler/HostStatHandler.py /opt/dirac/pro/WebAppDIRAC/WebApp/handler/HostStatHandler.py
+cp -r WebAppDIRAC/WebApp/static/DIRAC/ /opt/dirac/pro/WebAppDIRAC/WebApp/static/DIRAC/HostStat
+

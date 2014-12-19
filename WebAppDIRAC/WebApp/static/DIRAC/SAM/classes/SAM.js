@@ -35,6 +35,8 @@ Ext.define('DIRAC.SAM.classes.SAM', {
         }
         if (val == 'Banned')
             return '<span style="color:gray;"><b>Banned</b></span>';
+        if (val == 'Timeout')
+            return '<span style="color:black;"><b>Timeout</b></span>';
         if (val == 'Fail')
             return '<span style="color:red;"><b>Fail</b></span>';
         return val

@@ -116,7 +116,7 @@ class SAMLauncherAgent( AgentModule ):
             wms_job_id = test[1]
             timeout = test[2]
 
-            self.samdb_dao.setResult('Fail', result_id, 'Timeout fail after '+str(timeout/60)+' min of silence')
+            self.samdb_dao.setResult('Timeout', result_id, 'Timeout fail after '+str(timeout/60)+' min of silence')
           
             dirac = Dirac()
             result = dirac.delete(int(wms_job_id))
