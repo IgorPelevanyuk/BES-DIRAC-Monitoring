@@ -27,13 +27,10 @@ class SAMHandler(WebHandler):
             for st in states:
               temp = {}
               temp['site'] = st[0]
-              temp['service'] = st[1]
-              temp['test'] = st[2]
-              temp['result'] = st[3]
+              temp['test'] = st[1]
+              temp['result'] = st[2]
+              temp['received'] = st[3]
               temp['description'] = st[4]
-              temp['reliability24'] = trunc(float(st[7]))
-              temp['reliability48'] = trunc(float(st[8]))
-              temp['reliability168'] = trunc(float(st[9]))
               result.append(temp)
             self.write({"result":result})
 	

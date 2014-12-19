@@ -8,3 +8,6 @@ cp /opt/dirac/pro/DIRAC/FrameworkSystem/Client/SAMClient.py DIRAC/FrameworkSyste
 
 cp /opt/dirac/pro/DIRAC/FrameworkSystem/Agent/SAMLauncherAgent.py DIRAC/FrameworkSystem/Agent/SAMLauncherAgent.py
 
+cp /opt/dirac/pro/WebAppDIRAC/WebApp/handler/SAMHandler.py WebAppDIRAC/WebApp/handler/SAMHandler.py
+cp -r /opt/dirac/pro/WebAppDIRAC/WebApp/static/DIRAC/SAM WebAppDIRAC/WebApp/static/DIRAC/
+
