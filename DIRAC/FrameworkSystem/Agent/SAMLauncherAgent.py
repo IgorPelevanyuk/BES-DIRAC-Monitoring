@@ -29,7 +29,10 @@ class SAMLauncherAgent( AgentModule ):
         executable = executable.split('&')
         j = Job()
         j.setExecutable('python' , arguments = executable[0]+" "+str(result_id))
-        j.setInputSandbox([SAM_TEST_DIR + executable[0]])
+        sandBox = []
+        for file_name in executable:
+            sandBox.append(SAM_TEST_DIR + file_name)
+        j.setInputSandbox(sandBox)
         j.setName(test_name)
         j.setDestination( site_name )
         result = self.dirac.submit(j)
