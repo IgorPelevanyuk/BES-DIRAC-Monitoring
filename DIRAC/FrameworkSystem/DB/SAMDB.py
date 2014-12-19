@@ -147,6 +147,7 @@ class SAMDB( DB ):
 
         # Delete site from UI
         sqlDelete = "DELETE FROM States WHERE site_id=%s" % (site_id)
+        result = self._transaction( sqlDelete )
         if not result[ 'OK' ]:
             gLogger.error('Failed to delete site_id %s for site_name %s from States table' % (site_id, site_name))
             return result
