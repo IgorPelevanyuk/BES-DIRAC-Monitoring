@@ -1,4 +1,4 @@
-Ext.define('DIRAC.SAMCECharts.classes.SAMCECharts', {
+Ext.define('DIRAC.SAMCECharts.classes.SAMCharts', {
     extend : 'Ext.dirac.core.Module',
     requires :['Ext.chart.*',
                'Ext.Window',
