@@ -20,7 +20,7 @@ class SAMLauncherAgent( AgentModule ):
     def _getJobStatus(self, wms_job_id):
         status, message = "", ""
         result = self.dirac.status(wms_job_id)
-        if result['OK']:
+        if result['OK'] and wms_job_id in result['Value']:
             gLogger.info(result)
             responce = result['Value'] [wms_job_id]
             return S_OK((responce['Status'], responce['MinorStatus']))
