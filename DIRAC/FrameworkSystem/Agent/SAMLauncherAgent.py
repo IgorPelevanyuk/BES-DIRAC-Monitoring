@@ -135,9 +135,8 @@ class SAMLauncherAgent( AgentModule ):
                     self.samdb_dao.setResult('Timeout', result_id, 'Timeout fail after '+str(timeout/60)+' min of silence')
             else:
                 self.samdb_dao.setResult('Timeout', result_id, 'WARNING: Unable to get status. Timeout fail after '+str(timeout/60)+' min of silence')
-          
-            dirac = Dirac()
-            result = dirac.delete(int(wms_job_id))
+            
+            result = self.dirac.delete(int(wms_job_id))
 
             if result['OK']:
                 gLogger.info('Successfully killed the job with id: %s' % wms_job_id)
