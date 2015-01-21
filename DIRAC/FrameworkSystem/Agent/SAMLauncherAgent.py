@@ -21,6 +21,7 @@ class SAMLauncherAgent( AgentModule ):
         status, message = "", ""
         result = self.dirac.status(wms_job_id)
         if result['OK']:
+            gLogger.info(result)
             responce = result['Value'] [wms_job_id]
             return S_OK((responce['Status'], responce['MinorStatus']))
         return S_ERROR()
