@@ -6,7 +6,7 @@
 """
 __RCSID__ = "c9278cc (2012-04-05 01:56:22 +0200) ricardo <Ricardo.Graciani@gmail.com>"
 
-from DIRAC                                                  import gLogger, gConfig, S_OK
+from DIRAC                                                  import gLogger, gConfig, S_OK, S_ERROR
 from DIRAC.Core.Base.AgentModule                            import AgentModule
 from DIRAC.Interfaces.API.Job                               import Job
 from DIRAC.Interfaces.API.Dirac                             import Dirac
@@ -20,7 +20,8 @@ class SAMLauncherAgent( AgentModule ):
     def _getJobStatus(self, wms_job_id):
         status, message = "", ""
         result = self.dirac.status(wms_job_id)
-        if result['OK']:
+        if result['OK'] and wms_job_id in result['Value']:
+            gLogger.info(result)
             responce = result['Value'] [wms_job_id]
             return S_OK((responce['Status'], responce['MinorStatus']))
         return S_ERROR()
@@ -135,9 +136,8 @@ class SAMLauncherAgent( AgentModule ):
                     self.samdb_dao.setResult('Timeout', result_id, 'Timeout fail after '+str(timeout/60)+' min of silence')
             else:
                 self.samdb_dao.setResult('Timeout', result_id, 'WARNING: Unable to get status. Timeout fail after '+str(timeout/60)+' min of silence')
-          
-            dirac = Dirac()
-            result = dirac.delete(int(wms_job_id))
+            
+            result = self.dirac.delete(int(wms_job_id))
 
             if result['OK']:
                 gLogger.info('Successfully killed the job with id: %s' % wms_job_id)
