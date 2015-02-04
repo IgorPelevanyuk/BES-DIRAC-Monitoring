@@ -6,7 +6,7 @@
 """
 __RCSID__ = "c9278cc (2012-04-05 01:56:22 +0200) ricardo <Ricardo.Graciani@gmail.com>"
 
-from DIRAC                                                  import gLogger, gConfig, S_OK
+from DIRAC                                                  import gLogger, gConfig, S_OK, S_ERROR
 from DIRAC.Core.Base.AgentModule                            import AgentModule
 from DIRAC.Interfaces.API.Job                               import Job
 from DIRAC.Interfaces.API.Dirac                             import Dirac
