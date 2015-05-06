@@ -1,4 +1,4 @@
-Ext.define('DIRAC.SAMCECharts.classes.SAMCharts', {
+Ext.define('DIRAC.SAMCharts.classes.SAMCharts', {
     extend : 'Ext.dirac.core.Module',
     requires :['Ext.chart.*',
                'Ext.Window',
@@ -41,23 +41,24 @@ Ext.define('DIRAC.SAMCECharts.classes.SAMCharts', {
         proxy : {
             type : 'ajax',
             //url : GLOBAL.BASE_URL + 'SAMCECharts/getSiteChartData?site=BES.JINR.RU',
-            url : GLOBAL.BASE_URL + 'SAMCECharts/getSiteMonthAvailability?site=BES.JINR.RU',
+            url : GLOBAL.BASE_URL + 'SAMCharts/getSiteMonthAvailability?site=GRID.JINR.RU',
 
             method : 'GET',
-            params : {site:'BES.JINR.RU'},
+            params : {site:'GRID.JINR.ru'},
             reader : {
                 type : 'json',
                 root : 'result'
             },
             timeout : 50000
         },
-        fields : [{name : 'time', type : 'integer' },
-                  {name : 'state', type: 'float' }],
+        fields : [{name : 'time', type : 'string' },
+                  {name : 'test', type : 'integer'},
+                  {name : 'state', type: 'string' }],
         autoLoad : true,
         pageSize : 20,
 
     });
-
+    
      var win = Ext.create('Ext.Window', {
         width: 800,
         height: 600,
@@ -72,49 +73,11 @@ Ext.define('DIRAC.SAMCECharts.classes.SAMCharts', {
                 store1.loadData(generateData(8));
             }
         }],
-        items: {
-            xtype: 'chart',
-            style: 'background:#fff',
-            animate: true,
-            store: me.dataStore,
-            shadow: true,
-            theme: 'Category1',
-            legend: {
-                position: 'right'
-            },
-            axes: [{
-                type: 'Numeric',
-                minimum: 0,
-                position: 'left',
-                fields: ['data1'],
-                title: 'Availability',
-                minorTickSteps: 1,
-                grid: {
-                    odd: {
-                        opacity: 1,
-                        fill: '#ddd',
-                        stroke: '#bbb',
-                        'stroke-width': 0.5
-                    }
-                }
-            }, {
-                type: 'Category',
-                position: 'bottom',
-                fields: ['time'],
-                title: 'Day'
-            }],
-            series: [{
-                type: 'line',
-                highlight: {
-                    size: 0,
-                    radius: 0
-                },
-                axis: 'left',
-                xField: 'time',
-                yField: 'state',
-                fill: true                
-            }]
-        }
+        items: [{
+            html : "<div id='" + me.id + "-statistics-plot' style='width:100%;'></div>",
+            xtype : "box",
+            cls : 'jm-statistics-plot-background'
+       }]
     });
     }    
 });
