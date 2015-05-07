@@ -19,3 +19,6 @@ cp -r /opt/dirac/pro/WebAppDIRAC/WebApp/static/DIRAC/HostStat WebAppDIRAC/WebApp
 
 cp /opt/dirac/pro/WebAppDIRAC/WebApp/handler/SAMChartsHandler.py WebAppDIRAC/WebApp/handler/SAMChartsHandler.py
 cp -r /opt/dirac/pro/WebAppDIRAC/WebApp/static/DIRAC/SAMCharts WebAppDIRAC/WebApp/static/DIRAC/
+
+cp /opt/dirac/pro/WebAppDIRAC/WebApp/handler/GeneralMonitoringViewHandler.py WebAppDIRAC/WebApp/handler/GeneralMonitoringViewHandler.py
+cp -r /opt/dirac/pro/WebAppDIRAC/WebApp/static/DIRAC/GeneralMonitoringView WebAppDIRAC/WebApp/static/DIRAC/

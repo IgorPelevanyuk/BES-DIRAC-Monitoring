@@ -20,4 +20,7 @@ cp -r WebAppDIRAC/WebApp/static/DIRAC/HostStat /opt/dirac/pro/WebAppDIRAC/WebApp
 cp WebAppDIRAC/WebApp/handler/SAMChartsHandler.py /opt/dirac/pro/WebAppDIRAC/WebApp/handler/SAMChartsHandler.py
 cp -r WebAppDIRAC/WebApp/static/DIRAC/SAMCharts /opt/dirac/pro/WebAppDIRAC/WebApp/static/DIRAC/
 
+cp WebAppDIRAC/WebApp/handler/GeneralMonitoringViewHandler.py /opt/dirac/pro/WebAppDIRAC/WebApp/handler/GeneralMonitoringViewHandler.py
+cp -r WebAppDIRAC/WebApp/static/DIRAC/GeneralMonitoringView /opt/dirac/pro/WebAppDIRAC/WebApp/static/DIRAC/
+
 echo "Modules deployed"
