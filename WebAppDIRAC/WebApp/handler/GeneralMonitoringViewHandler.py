@@ -1,66 +1,72 @@
 from WebAppDIRAC.Lib.WebHandler import WebHandler
+from DIRAC import gLogger, S_OK, S_ERROR
 from DIRAC.FrameworkSystem.DB.SAMDB import SAMDB
+from DIRAC.WorkloadManagementSystem.DB.JobDB import JobDB
 
 import math
-
-STATE_MAP = {'Success':5,
-             'Timeout':4,
-             'Banned':1,
-             'Fail':2,}
 
 def trunc(f):
     '''Truncates/pads a float f to n decimal places without rounding'''
     temp = f*100
     temp = math.floor(temp)
     temp = temp/100
-    return temp
-  
-def getStateNumber(state):
-    if state in STATE_MAP:
-        return STATE_MAP[state]
-    return 2
+    return temp  
 
 class GeneralMonitoringViewHandler(WebHandler):
 
     AUTH_PROPS = "all"
+    toSend = {}
+    defaultSite = {'running':0, 'waiting':0, 'failed':0, 'done':0}
+    runningSQL = 'select Site, count(*) from Jobs where Status="Running" group by Site;'
+    failedSQL = 'select Site, count(*) from Jobs where Status="Failed" group by Site;'
+    doneSQL = 'select Site, count(*) from Jobs where Status="Done" group by Site;'
+    waitingSQL = 'select Site, count(*) from Jobs where Status="Waiting" or Status="Checking" group by Site;'
+
+    def updateSending(self, valueName, requestResult):
+        if requestResult['OK']:
+            for row in requestResult['Value']:
+                self.toSend[row[0]] = self.toSend.get(row[0], self.defaultSite)
+                self.toSend[row[0]][valueName] = row[1]
+            return True
+        else:
+            gLogger.error('Failed to get info for %s due to: %s' % (valueName, requestResult['Message']))
+            return False
+
+    def selectFromDB(self):
+        self.toSend = {}
+        
+        isOK = True
+        jobDB = JobDB()
+                
+        result = jobDB._query( self.runningSQL )
+        isOK = isOK and self.updateSending('running', result)
+        
+        result = jobDB._query( self.waitingSQL )
+        isOK = isOK and self.updateSending('waiting', result)
+            
+        result = jobDB._query( self.failedSQL )
+        isOK = isOK and self.updateSending('failed', result)
+            
+        result = jobDB._query( self.doneSQL )
+        isOK = isOK and self.updateSending('done', result)       
+        
+        if isOK:
+            return S_OK()
+        else:
+            return S_ERROR()
 
     def web_getData(self):
-            self.DB = SAMDB()
-            states = self.DB.getState()['Value']
-            result=[]
-            for st in states:
-              temp = {}
-              temp['site'] = st[0]
-              temp['test'] = st[1]
-              temp['result'] = st[2]
-              temp['received'] = st[3]
-              temp['description'] = st[4]
-              result.append(temp)
-            self.write({"result":result})
-
-    def selectFromDB(self, site, test):
-        selectSQL = "SELECT R.last_update, R.state, R.description FROM Results R, Sites S, Tests T WHERE R.last_update > DATE_SUB(NOW(), INTERVAL 1 WEEK) AND R.site_id=S.Site_id AND R.test_id=T.test_id AND S.name='%s' AND T.name='%s'"%(site, test)
-        result = self.DB._query( selectSQL )
-        return result
-
-    def web_getSiteMonthAvailability(self):
-            self.DB = SAMDB()
-            site = self.request.arguments['site'][0]
-            test = self.request.arguments['test'][0]
-            result = self.selectFromDB(site, test)
-            if result['OK']:
-                toSend = []
-                previous = None
-                for st in result['Value']:
-                    if st[1] in STATE_MAP:
-                        temp = {}
-                        temp['time'] = str(st[0])
-                        temp['state'] = getStateNumber(st[1])
-                        temp['description'] = st[2]
-                        toSend.append(temp)
-                  
-                self.write({"result":toSend})
-            else:
-                print 'Error during selecting from DB'
-	
-
+        result = self.selectFromDB()
+        if result['OK']:
+            data = []
+            for site in self.toSend:
+                row = {}
+                row['site'] = site
+                row['running'] = self.toSend['running']
+                row['waiting'] = self.toSend['waiting']
+                row['failed'] = self.toSend['failed']
+                row['done'] = self.toSend['done']
+                data.append(row)
+            self.write({"result":data})
+        else:
+            gLogger.error('Not possible to send overview data due to DB errors')
