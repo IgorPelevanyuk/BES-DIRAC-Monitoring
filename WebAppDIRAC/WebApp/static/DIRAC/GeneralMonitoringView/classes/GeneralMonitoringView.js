@@ -86,10 +86,10 @@ Ext.define('DIRAC.GeneralMonitoringView.classes.GeneralMonitoringView', {
             timeout : 50000
         },
         fields : [{name : 'site', type : 'string' },
-                  {name : 'test', type: 'string'},
-                  {name : 'result', type: 'string'},
-                  {name : 'received', type: 'float'},
-                  {name : 'description', type: 'string'}],
+                  {name : 'running', type: 'float'},
+                  {name : 'waiting', type: 'float'},
+                  {name : 'failed', type: 'float'},
+                  {name : 'done', type: 'float'}],
         autoLoad : true,
         pageSize : 20,
 
@@ -110,44 +110,30 @@ Ext.define('DIRAC.GeneralMonitoringView.classes.GeneralMonitoringView', {
             sortable : true,
             dataIndex : 'site',
             align : 'left',
-            renderer: function(val){ return val; },
+            renderer: function(val){ return val; }
         },
         {
-            header : 'Tests',
+            header : 'Running',
             sortable : true,
-            dataIndex : 'testStatus',
-            align : 'left'
-        },
-        {
-            header : 'Hosts',
-            sortable : true,
-            dataIndex : 'hostStatus',
-            align : 'right',
-            renderer : colorerBold
-        },
-        {
-            header : 'Running jobs',
-            sortable : false,
-            dataIndex : 'jobsRunning',
-            align : 'right',
-            renderer : secToMin
-        },
-        {
-            header : 'Scheduled jobs',
-            sortable : true,
-            dataIndex : 'jobScheduled',
+            dataIndex : 'running',
             align : 'right'
         },
         {
-            header : 'Failed jobs',
+            header : 'Waiting',
             sortable : true,
-            dataIndex : 'jobsFailed',
+            dataIndex : 'waiting',
             align : 'right'
         },
         {
-            header : 'Finished jobs',
+            header : 'Failed',
             sortable : true,
-            dataIndex : 'jobFinished',
+            dataIndex : 'failed',
+            align : 'right'
+        },
+        {
+            header : 'Done',
+            sortable : true,
+            dataIndex : 'done',
             align : 'right'
         }]
     });
