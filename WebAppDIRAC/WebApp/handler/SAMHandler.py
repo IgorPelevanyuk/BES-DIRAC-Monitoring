@@ -1,4 +1,4 @@
-from WebAppDIRAC.Lib.WebHandler import WebHandler
+from WebAppDIRAC.Lib.WebHandler import WebHandler #@UnresolvedImport
 from DIRAC.FrameworkSystem.DB.SAMDB import SAMDB
 
 import math

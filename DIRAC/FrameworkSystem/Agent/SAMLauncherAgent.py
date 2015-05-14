@@ -1,16 +1,17 @@
 ########################################################################
 # $HeadURL$
 ########################################################################
+
 """  LemonAgent reports the state of all installed and set up services and agents. This output is then
      used in lemon sensors.
 """
 __RCSID__ = "c9278cc (2012-04-05 01:56:22 +0200) ricardo <Ricardo.Graciani@gmail.com>"
 
-from DIRAC                                                  import gLogger, gConfig, S_OK, S_ERROR
-from DIRAC.Core.Base.AgentModule                            import AgentModule
-from DIRAC.Interfaces.API.Job                               import Job
-from DIRAC.Interfaces.API.Dirac                             import Dirac
-from DIRAC.Interfaces.API.DiracAdmin                        import DiracAdmin
+from DIRAC                                                  import gLogger, gConfig, S_OK, S_ERROR #@UnresolvedImport
+from DIRAC.Core.Base.AgentModule                            import AgentModule #@UnresolvedImport
+from DIRAC.Interfaces.API.Job                               import Job #@UnresolvedImport
+from DIRAC.Interfaces.API.Dirac                             import Dirac #@UnresolvedImport
+from DIRAC.Interfaces.API.DiracAdmin                        import DiracAdmin #@UnresolvedImport
 from DIRAC.FrameworkSystem.DB.SAMDB                         import SAMDB
 import os
 

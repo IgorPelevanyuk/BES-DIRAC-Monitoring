@@ -1,6 +1,6 @@
-from WebAppDIRAC.Lib.WebHandler import WebHandler
-from DIRAC.WorkloadManagementSystem.DB.JobDB import JobDB
-from DIRAC.ConfigurationSystem.Client.Config import gConfig
+from WebAppDIRAC.Lib.WebHandler import WebHandler #@UnresolvedImport
+from DIRAC.WorkloadManagementSystem.DB.JobDB import JobDB #@UnresolvedImport
+from DIRAC.ConfigurationSystem.Client.Config import gConfig  # @UnresolvedImport
 from pprint import pprint
 
 class BusynessMonitorHandler(WebHandler):
@@ -28,7 +28,7 @@ class BusynessMonitorHandler(WebHandler):
           siteMaxJobs[site] = {'max': siteMaxJobs[site], 'current':0}
         
         #Get current Running jobs
-        import MySQLdb
+        import MySQLdb #@UnresolvedImport
         db = MySQLdb.connect(host="diracdb.ihep.ac.cn", # your host, usually localhost
                              user="monitor", # your username
                              passwd="dirac4badger01", # your password

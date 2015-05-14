@@ -1,7 +1,7 @@
-from WebAppDIRAC.Lib.WebHandler import WebHandler
-from DIRAC import gLogger, S_OK, S_ERROR
+from WebAppDIRAC.Lib.WebHandler import WebHandler #@UnresolvedImport
+from DIRAC import gLogger, S_OK, S_ERROR #@UnresolvedImport
 from DIRAC.FrameworkSystem.DB.SAMDB import SAMDB
-from DIRAC.WorkloadManagementSystem.DB.JobDB import JobDB
+from DIRAC.WorkloadManagementSystem.DB.JobDB import JobDB #@UnresolvedImport
 
 import math
 

@@ -8,9 +8,9 @@ with tests.
 __RCSID__ = "0394cb5 (2012-10-23 15:23:42 +0200) Igor Pelevanyuk <>"
 
 import time, types
-from DIRAC  import gConfig, gLogger, S_OK, S_ERROR
-from DIRAC.Core.Utilities import Time
-from DIRAC.Core.Base.DB import DB
+from DIRAC  import gConfig, gLogger, S_OK, S_ERROR #@UnresolvedImport
+from DIRAC.Core.Utilities import Time #@UnresolvedImport
+from DIRAC.Core.Base.DB import DB #@UnresolvedImport
 
 class SAMDB( DB ):
 
