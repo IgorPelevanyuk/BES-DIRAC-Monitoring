@@ -23,7 +23,7 @@ class GeneralMonitoringViewHandler(WebHandler):
     waitingSQL = 'select Site, count(*) from Jobs where Status="Waiting" or Status="Checking" group by Site;'
 
     def updateSending(self, valueName, requestResult):
-        if requestResult['OK']:
+        if requestResult['OK']:            
             for row in requestResult['Value']:
                 self.toSend[row[0]] = self.toSend.get(row[0], self.defaultSite)
                 self.toSend[row[0]][valueName] = row[1]
@@ -56,16 +56,17 @@ class GeneralMonitoringViewHandler(WebHandler):
             return S_ERROR()
 
     def web_getData(self):
+        gLogger.info('Get Data for general view')
         result = self.selectFromDB()
         if result['OK']:
             data = []
             for site in self.toSend:
                 row = {}
                 row['site'] = site
-                row['running'] = self.toSend['running']
-                row['waiting'] = self.toSend['waiting']
-                row['failed'] = self.toSend['failed']
-                row['done'] = self.toSend['done']
+                row['running'] = self.toSend[site]['running']
+                row['waiting'] = self.toSend[site]['waiting']
+                row['failed'] = self.toSend[site]['failed']
+                row['done'] = self.toSend[site]['done']
                 data.append(row)
             self.write({"result":data})
         else:
