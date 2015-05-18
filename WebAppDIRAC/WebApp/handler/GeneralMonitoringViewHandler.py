@@ -25,7 +25,7 @@ def mysql_querry(querry):
     cur.execute(querry)
     data = cur.fetchall()
     cur.close()
-    return data
+    return S_OK(data)
   else:
     db = JobDB()
     return db._query( querry )['Value']
