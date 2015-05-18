@@ -25,7 +25,7 @@ class GeneralMonitoringViewHandler(WebHandler):
     def updateSending(self, valueName, requestResult):
         if requestResult['OK']:            
             for row in requestResult['Value']:
-                self.toSend[row[0]] = self.toSend.get(row[0], self.defaultSite)
+                self.toSend[row[0]] = self.toSend.get(row[0], self.defaultSite.copy())
                 self.toSend[row[0]][valueName] = row[1]
             return True
         else:
