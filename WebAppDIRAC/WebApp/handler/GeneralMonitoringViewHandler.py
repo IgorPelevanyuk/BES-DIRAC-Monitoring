@@ -12,9 +12,28 @@ def trunc(f):
     temp = temp/100
     return temp  
 
+USE_PURE_MYSQL = True
+
+def mysql_querry(querry):
+  if USE_PURE_MYSQL:
+    import MySQLdb
+    db = MySQLdb.connect(host="diracdb.ihep.ac.cn", # your host, usually localhost
+                         user="monitor", # your username
+                         passwd="dirac4badger01", # your password
+                         db="JobDB")
+    cur = db.cursor()
+    cur.execute(querry)
+    data = cur.fetchall()
+    cur.close()
+    return data
+  else:
+    db = JobDB()
+    return db._query( querry )['Value']
+
 class GeneralMonitoringViewHandler(WebHandler):
 
     AUTH_PROPS = "all"
+    
     toSend = {}
     defaultSite = {'running':0, 'waiting':0, 'failed':0, 'done':0}
     runningSQL = 'select Site, count(*) from Jobs where Status="Running" group by Site;'
@@ -38,16 +57,16 @@ class GeneralMonitoringViewHandler(WebHandler):
         isOK = True
         jobDB = JobDB()
                 
-        result = jobDB._query( self.runningSQL )
+        result = mysql_querry( self.runningSQL )
         isOK = isOK and self.updateSending('running', result)
         
-        result = jobDB._query( self.waitingSQL )
+        result = mysql_querry( self.waitingSQL )
         isOK = isOK and self.updateSending('waiting', result)
             
-        result = jobDB._query( self.failedSQL )
+        result = mysql_querry( self.failedSQL )
         isOK = isOK and self.updateSending('failed', result)
             
-        result = jobDB._query( self.doneSQL )
+        result = mysql_querry( self.doneSQL )
         isOK = isOK and self.updateSending('done', result)       
         
         if isOK:
