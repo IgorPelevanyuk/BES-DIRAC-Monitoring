@@ -94,7 +94,7 @@ class GeneralMonitoringViewHandler(WebHandler):
         result = mysql_querry(self.dataOnSEsSQL, 'FileCatalogDB')
         for row in result['Value']:
             seSize[row[0]] = row[1]
-        for site in siteToSE:
+        for site in siteSize:
             site[1] = seSize[site[1]]
         isOK = isOK and self.updateSending('sesize', S_OK(siteSize))
 
