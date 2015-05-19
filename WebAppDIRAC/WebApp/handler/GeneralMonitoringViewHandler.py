@@ -40,7 +40,7 @@ def getSEs():
     for dir in gConfig.getSections('/Resources/Sites')['Value']:
         for site in gConfig.getSections('/Resources/Sites/'+dir)['Value']:
             if 'SE' in gConfig.getOptions('/Resources/Sites/'+dir+'/'+site)['Value']:
-                siteSEs.append((site, gConfig.getValue('/Resources/Sites/'+dir+'/'+site+'/SE')))
+                siteSEs.append([site, gConfig.getValue('/Resources/Sites/'+dir+'/'+site+'/SE')])
             # print site, ': ', siteSEs[site], ' : ', SEs[siteSEs[site]] if siteSEs[site]!='' else ''
     return siteSEs
 
