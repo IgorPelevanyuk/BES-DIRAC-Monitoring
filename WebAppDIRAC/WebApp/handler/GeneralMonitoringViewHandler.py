@@ -42,8 +42,11 @@ def getSEs():
             if 'SE' in gConfig.getOptions('/Resources/Sites/'+dir+'/'+site)['Value']:
                 siteSEs.append((site, gConfig.getValue('/Resources/Sites/'+dir+'/'+site+'/SE')))
             # print site, ': ', siteSEs[site], ' : ', SEs[siteSEs[site]] if siteSEs[site]!='' else ''
-
     return S_OK(siteSEs)
+
+def getSEtoSite():
+    siteSEs = dict([(x[1], x[0]) for x in getSEs()])
+
 
 class GeneralMonitoringViewHandler(WebHandler):
 
@@ -86,11 +89,12 @@ class GeneralMonitoringViewHandler(WebHandler):
         result = getSEs()
         isOK = isOK and self.updateSending('se', result)
 
-        #result = mysql_querry(self.dataOnSEsSQL)
-        #sizeOnSE = {}
-        #for row in result:
-        #    sizeOnSE[row[0]] = row[1]
-        #isOK = isOK and self.updateSending('SEsize', result)
+        SEtoSite = dict([(x[1], x[0]) for x in getSEs()])
+        siteSize = []
+        result = mysql_querry(self.dataOnSEsSQL)
+        for row in result['Value']:
+            siteSize.append((SEtoSite[row[0]], row[1]))
+        isOK = isOK and self.updateSending('sesize', S_OK(siteSize))
 
         if isOK:
             return S_OK()
@@ -110,6 +114,7 @@ class GeneralMonitoringViewHandler(WebHandler):
                 row['failed'] = self.toSend[site]['failed']
                 row['done'] = self.toSend[site]['done']
                 row['se'] = self.toSend[site]['se']
+                row['sesize'] = self.toSend[site]['sesize']
                 data.append(row)
             self.write({"result": data})
         else:
