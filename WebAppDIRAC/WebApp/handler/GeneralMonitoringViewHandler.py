@@ -49,7 +49,7 @@ class GeneralMonitoringViewHandler(WebHandler):
 
     AUTH_PROPS = "all"
     toSend = {}
-    defaultSite = {'running': 0, 'waiting': 0, 'failed': 0, 'done': 0, 'SE': '', 'SEsize': ''}
+    defaultSite = {'running': 0, 'waiting': 0, 'failed': 0, 'done': 0, 'se': '', 'sesize': ''}
     runningSQL = 'select Site, count(*) from Jobs where Status="Running" group by Site;'
     failedSQL = 'select Site, count(*) from Jobs where Status="Failed" group by Site;'
     doneSQL = 'select Site, count(*) from Jobs where Status="Done" group by Site;'
@@ -84,7 +84,7 @@ class GeneralMonitoringViewHandler(WebHandler):
         isOK = isOK and self.updateSending('done', result)
 
         result = getSEs()
-        isOK = isOK and self.updateSending('SE', result)
+        isOK = isOK and self.updateSending('se', result)
 
         #result = mysql_querry(self.dataOnSEsSQL)
         #sizeOnSE = {}
@@ -109,7 +109,7 @@ class GeneralMonitoringViewHandler(WebHandler):
                 row['waiting'] = self.toSend[site]['waiting']
                 row['failed'] = self.toSend[site]['failed']
                 row['done'] = self.toSend[site]['done']
-                row['se'] = self.toSend[site]['SE']
+                row['se'] = self.toSend[site]['se']
                 data.append(row)
             self.write({"result": data})
         else:
