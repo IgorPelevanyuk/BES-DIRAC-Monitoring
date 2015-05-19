@@ -31,15 +31,30 @@ def mysql_querry(querry):
         db = JobDB()
         return db._query( querry )['Value']
 
+def getSEs():
+    siteSEs = []
+    SEs = {}
+    for se in gConfig.getSections('/Resources/StorageElements')['Value']:
+        SEs[se] = gConfig.getValue('/Resources/StorageElements/'+se+'/AccessProtocol.1/Host')
+        # print se, ': ', SEs[se]
+    for dir in gConfig.getSections('/Resources/Sites')['Value']:
+        for site in gConfig.getSections('/Resources/Sites/'+dir)['Value']:
+            if 'SE' in gConfig.getOptions('/Resources/Sites/'+dir+'/'+site)['Value']:
+                siteSEs.append(site, gConfig.getValue('/Resources/Sites/'+dir+'/'+site+'/SE'))
+            # print site, ': ', siteSEs[site], ' : ', SEs[siteSEs[site]] if siteSEs[site]!='' else ''
+
+    return S_OK(siteSEs)
+
 class GeneralMonitoringViewHandler(WebHandler):
 
     AUTH_PROPS = "all"
     toSend = {}
-    defaultSite = {'running': 0, 'waiting': 0, 'failed': 0, 'done': 0}
+    defaultSite = {'running': 0, 'waiting': 0, 'failed': 0, 'done': 0, 'SE': '', 'SEsize': ''}
     runningSQL = 'select Site, count(*) from Jobs where Status="Running" group by Site;'
     failedSQL = 'select Site, count(*) from Jobs where Status="Failed" group by Site;'
     doneSQL = 'select Site, count(*) from Jobs where Status="Done" group by Site;'
     waitingSQL = 'select Site, count(*) from Jobs where Status="Waiting" or Status="Checking" group by Site;'
+    dataOnSEsSQL = 'select SE.SEName, sum(F.Size) from FC_Replicas R, FC_Files F, FC_StorageElements SE where R.FileID=F.FileID and R.SEID=SE.SEID group by R.SEID;'
 
     def updateSending(self, valueName, requestResult):
         if requestResult['OK']:
@@ -67,6 +82,15 @@ class GeneralMonitoringViewHandler(WebHandler):
 
         result = mysql_querry(self.doneSQL)
         isOK = isOK and self.updateSending('done', result)
+
+        result = getSEs()
+        isOK = isOK and self.updateSending('SE', result)
+
+        #result = mysql_querry(self.dataOnSEsSQL)
+        #sizeOnSE = {}
+        #for row in result:
+        #    sizeOnSE[row[0]] = row[1]
+        #isOK = isOK and self.updateSending('SEsize', result)
 
         if isOK:
             return S_OK()
