@@ -2,6 +2,7 @@ from WebAppDIRAC.Lib.WebHandler import WebHandler
 from DIRAC import gLogger, S_OK, S_ERROR
 from DIRAC.FrameworkSystem.DB.SAMDB import SAMDB
 from DIRAC.WorkloadManagementSystem.DB.JobDB import JobDB
+from DIRAC import gConfig
 
 import math
 
