@@ -15,13 +15,13 @@ def trunc(f):
 
 USE_PURE_MYSQL = True
 
-def mysql_querry(querry):
+def mysql_querry(querry, DB):
     if USE_PURE_MYSQL:
         import MySQLdb
         db = MySQLdb.connect(host="diracdb.ihep.ac.cn",
                          user="monitor",
                          passwd="dirac4badger01",
-                         db="JobDB")
+                         db=DB)
         cur = db.cursor()
         cur.execute(querry)
         data = cur.fetchall()
@@ -52,7 +52,7 @@ class GeneralMonitoringViewHandler(WebHandler):
 
     AUTH_PROPS = "all"
     toSend = {}
-    defaultSite = {'running': 0, 'waiting': 0, 'failed': 0, 'done': 0, 'se': '', 'sesize': ''}
+    defaultSite = {'running': 0, 'waiting': 0, 'failed': 0, 'done': 0, 'se': '', 'sesize': 0}
     runningSQL = 'select Site, count(*) from Jobs where Status="Running" group by Site;'
     failedSQL = 'select Site, count(*) from Jobs where Status="Failed" group by Site;'
     doneSQL = 'select Site, count(*) from Jobs where Status="Done" group by Site;'
@@ -74,16 +74,16 @@ class GeneralMonitoringViewHandler(WebHandler):
 
         isOK = True
 
-        result = mysql_querry(self.runningSQL)
+        result = mysql_querry(self.runningSQL, 'JobDB')
         isOK = isOK and self.updateSending('running', result)
 
-        result = mysql_querry(self.waitingSQL)
+        result = mysql_querry(self.waitingSQL, 'JobDB')
         isOK = isOK and self.updateSending('waiting', result)
 
-        result = mysql_querry(self.failedSQL)
+        result = mysql_querry(self.failedSQL, 'JobDB')
         isOK = isOK and self.updateSending('failed', result)
 
-        result = mysql_querry(self.doneSQL)
+        result = mysql_querry(self.doneSQL, 'JobDB')
         isOK = isOK and self.updateSending('done', result)
 
         result = getSEs()
@@ -91,7 +91,7 @@ class GeneralMonitoringViewHandler(WebHandler):
 
         SEtoSite = dict([(x[1], x[0]) for x in getSEs()])
         siteSize = []
-        result = mysql_querry(self.dataOnSEsSQL)
+        result = mysql_querry(self.dataOnSEsSQL, 'FileCatalogDB')
         for row in result['Value']:
             siteSize.append((SEtoSite[row[0]], row[1]))
         isOK = isOK and self.updateSending('sesize', S_OK(siteSize))
