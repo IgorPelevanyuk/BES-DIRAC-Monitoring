@@ -42,7 +42,7 @@ def getSEs():
             if 'SE' in gConfig.getOptions('/Resources/Sites/'+dir+'/'+site)['Value']:
                 siteSEs.append((site, gConfig.getValue('/Resources/Sites/'+dir+'/'+site+'/SE')))
             # print site, ': ', siteSEs[site], ' : ', SEs[siteSEs[site]] if siteSEs[site]!='' else ''
-    return S_OK(siteSEs)
+    return siteSEs
 
 def getSEtoSite():
     siteSEs = dict([(x[1], x[0]) for x in getSEs()])
@@ -87,13 +87,15 @@ class GeneralMonitoringViewHandler(WebHandler):
         isOK = isOK and self.updateSending('done', result)
 
         result = getSEs()
-        isOK = isOK and self.updateSending('se', result)
+        isOK = isOK and self.updateSending('se', S_OK(result))
 
-        SEtoSite = dict([(x[1], x[0]) for x in getSEs()])
-        siteSize = []
+        siteSize = getSEs()
+        seSize = {}
         result = mysql_querry(self.dataOnSEsSQL, 'FileCatalogDB')
         for row in result['Value']:
-            siteSize.append((SEtoSite[row[0]], row[1]))
+            seSize[row[0]] = row[1]
+        for site in siteToSE:
+            site[1] = seSize[site[1]]
         isOK = isOK and self.updateSending('sesize', S_OK(siteSize))
 
         if isOK:
