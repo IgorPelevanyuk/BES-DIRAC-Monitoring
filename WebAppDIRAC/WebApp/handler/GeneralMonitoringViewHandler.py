@@ -116,7 +116,7 @@ class GeneralMonitoringViewHandler(WebHandler):
                 row['failed'] = self.toSend[site]['failed']
                 row['done'] = self.toSend[site]['done']
                 row['se'] = self.toSend[site]['se']
-                row['sesize'] = self.toSend[site]['sesize']
+                row['sesize'] = trunc(self.toSend[site]['sesize']/1024/1024/1024)
                 data.append(row)
             self.write({"result": data})
         else:
