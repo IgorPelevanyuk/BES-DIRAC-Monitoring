@@ -109,6 +109,7 @@ class GeneralMonitoringViewHandler(WebHandler):
                 row['waiting'] = self.toSend[site]['waiting']
                 row['failed'] = self.toSend[site]['failed']
                 row['done'] = self.toSend[site]['done']
+                row['se'] = self.toSend[site]['SE']
                 data.append(row)
             self.write({"result": data})
         else:
