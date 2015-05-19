@@ -145,7 +145,7 @@ Ext.define('DIRAC.GeneralMonitoringView.classes.GeneralMonitoringView', {
             align : 'right'
         },
         {
-            header : 'SE Ocupied',
+            header : 'SE Ocupied GB',
             sortable : true,
             dataIndex : 'sesize',
             align : 'right'
