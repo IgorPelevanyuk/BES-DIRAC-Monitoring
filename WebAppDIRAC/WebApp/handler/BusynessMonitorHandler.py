@@ -31,7 +31,7 @@ class BusynessMonitorHandler(WebHandler):
         import MySQLdb #@UnresolvedImport
         db = MySQLdb.connect(host="diracdb.ihep.ac.cn", # your host, usually localhost
                              user="monitor", # your username
-                             passwd="dirac4badger01", # your password
+                             passwd="###DIRAC_DB_PASS###", # your password
                              db="JobDB")
 
         cur = db.cursor()
