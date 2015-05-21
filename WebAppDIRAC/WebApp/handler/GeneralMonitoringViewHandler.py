@@ -19,7 +19,7 @@ def mysql_querry(querry, db_name):
         import MySQLdb
         dba_object = MySQLdb.connect(host="diracdb.ihep.ac.cn",
                          user="monitor",
-                         passwd="dirac4badger01",
+                         passwd="###DIRAC_DB_PASS###",
                          db=db_name)
         cur = dba_object.cursor()
         cur.execute(querry)
