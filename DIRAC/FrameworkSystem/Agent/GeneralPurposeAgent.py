@@ -11,23 +11,25 @@ from DIRAC.FrameworkSystem.DB.GeneralPurposeDB              import GeneralPurpos
 class GeneralPurposeAgent( AgentModule ):
 
     def initialize( self ):
+        self.log.info( "initialize" )
         self.GPDB_dao = GeneralPurposeDB()
         return S_OK()
 
     def execute( self ):
+        self.log.info( "execute" )
         return S_OK()
   
     def beginExecution(self):
-        self.log.info( "CYCLE START!!" )
+        self.log.info( "beginExecution" )
     
         return S_OK()
 
     def endExecution(self):
-        self.log.info( "CYCLE STOP!!" )
+        self.log.info( "endExecution" )
 
         return S_OK()
 
     def finalize(self):
-        self.log.info( "GRATEFUL EXIT. BYE" )
+        self.log.info( "finalize" )
     
         return S_OK()
