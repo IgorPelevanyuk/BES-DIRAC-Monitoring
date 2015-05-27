@@ -37,7 +37,7 @@ class GeneralPurposeDB(DB):
                                              'time' : 'DATETIME NOT NULL',
                                              'key' : 'TEXT',
                                              'result': 'TEXT',
-                                             'description': 'TEST'
+                                             'description': 'TEXT'
                                         },
                                            'PrimaryKey' : 'journal_id',
                                  }
