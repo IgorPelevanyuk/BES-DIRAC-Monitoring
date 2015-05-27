@@ -4,6 +4,8 @@ cp DIRAC/FrameworkSystem/DB/SAMDB.sql /opt/dirac/pro/DIRAC/FrameworkSystem/DB/.
 cp DIRAC/FrameworkSystem/DB/GeneralPurposeDB.py /opt/dirac/pro/DIRAC/FrameworkSystem/DB/.
 cp DIRAC/FrameworkSystem/DB/GeneralPurposeDB.sql /opt/dirac/pro/DIRAC/FrameworkSystem/DB/.
 
+cp DIRAC/FrameworkSystem/Agent/GeneralPurposeAgent.py /opt/dirac/pro/DIRAC/FrameworkSystem/Agent/.
+
 cp DIRAC/FrameworkSystem/Service/SAMHandler.py /opt/dirac/pro/DIRAC/FrameworkSystem/Service/SAMHandler.py
 cp DIRAC/FrameworkSystem/Client/SAMClient.py /opt/dirac/pro/DIRAC/FrameworkSystem/Client/SAMClient.py 
 
