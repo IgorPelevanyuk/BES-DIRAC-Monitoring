@@ -103,7 +103,8 @@ class DMStestCommand(Command):
         super(DMStestCommand, self).__init__()
         self.options['test_file'] = 'test_file.dat'
         self.options['lfn_path'] = '/bes/user/p/pelevanyuk/'
-        self.options.update(options)
+        if options:
+            self.options.update(options)
         self.command_type = 'dmstest'
         self.DB = GeneralPurposeDB()
         
