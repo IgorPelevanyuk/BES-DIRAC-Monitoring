@@ -164,7 +164,7 @@ class DMStestCommand(Command):
         results = {}
         descriptions = {}
         for se in SEs:
-            upload_result = self._add_file(self.options['lfn'], self.options['test_file'], se)
+            upload_result = self._add_file(self.options['lfn_path'] + self.options['test_file'], self.options['test_file'], se)
             if upload_result['OK']:
                 results[(se, se)] = upload_result['Value']['put']
                 descriptions[(se, se)] = 'Success'
