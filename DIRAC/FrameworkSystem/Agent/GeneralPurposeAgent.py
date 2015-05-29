@@ -39,17 +39,17 @@ class GeneralPurposeAgent( AgentModule ):
     
         return S_OK()
 
-class Command():
+class Command(object):
 
-    def __init__( self, options = None):
+    def __init__(self, options=None):
         self.options = options
 
     def execute(self):
         return S_OK()
 
-class PingCECommand():
+class PingCECommand(Command):
 
-    def __init__(self, options = None):
+    def __init__(self, options=None):
         super(PingCECommand, self).__init__(options)
         self.command_type = 'pingce'
 
@@ -89,6 +89,3 @@ class PingCECommand():
         for host in host:
             output, errors = self._get_ping_output(host)
             avgPing, passed, description = self._get_ping_stat(output)
-            
-
-        pass
