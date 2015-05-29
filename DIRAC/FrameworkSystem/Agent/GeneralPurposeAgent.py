@@ -163,8 +163,9 @@ class DMStestCommand(Command):
         SEs = self._get_SEs()
         results = {}
         descriptions = {}
+        lfn = self.options['lfn_path'] + self.options['test_file']
         for se in SEs:
-            upload_result = self._add_file(self.options['lfn_path'] + self.options['test_file'], self.options['test_file'], se)
+            upload_result = self._add_file(lfn, self.options['test_file'], se)
             if upload_result['OK']:
                 results[(se, se)] = upload_result['Value']['put']
                 descriptions[(se, se)] = 'Success'
@@ -173,7 +174,7 @@ class DMStestCommand(Command):
                 descriptions[(se, se)] = upload_result['Message']
                 gLogger.info('Failed to upload the file to %s. Message: %s' % (se, upload_result['Message']))
             for destination in [x for x in SEs if x != se]:
-                replicate_result = self._replicate(self.options['lfn'], destination)
+                replicate_result = self._replicate(lfn, destination)
                 if replicate_result['OK']:
                     results[(se, destination)] = replicate_result['Value']['replicate']
                     descriptions[(se, destination)] = replicate_result['Message']
@@ -181,7 +182,7 @@ class DMStestCommand(Command):
                     results[(se, destination)] = -1
                     descriptions[(se, destination)] = replicate_result['Message']
                     gLogger.info('Failed to replicate the file from %s to %s. Message: %s' % (se, destination, replicate_result['Message']))
-            remove_result = self._remove_file(self.options['lfn'])
+            remove_result = self._remove_file(lfn)
             if remove_result['OK']:
                 descriptions[(se, se)] += 'Test file successfully removed'
             else:
