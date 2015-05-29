@@ -119,9 +119,9 @@ class DMStestCommand(Command):
     def _add_file(self, lfn, localfile, SE, guid=None):
         rm = ReplicaManager()
         self._create_test_file()
-        if not os.path.exists(self.options['default_test_file']):
+        if not os.path.exists(self.options['test_file']):
             gLogger.error("File %s must exist locally" % localfile)
-        if not os.path.isfile(self.options['default_test_file']):
+        if not os.path.isfile(self.options['test_file']):
             gLogger.error("%s is not a file" % localfile)
 
         res = rm.putAndRegister(lfn, localfile, SE, guid)
