@@ -26,6 +26,8 @@ class GeneralPurposeAgent(AgentModule):
         self.log.info("execute")
         #x = PingCommand()
         #x.execute()
+        x = DMStestCommand()
+        result = x.execute()
         return S_OK()
   
     def beginExecution(self):
@@ -186,6 +188,7 @@ class DMStestCommand(Command):
                 gLogger.info('Failed to remove file from %s. Message: %s' % (se, remove_result['Message']))
 
         gLogger.info(str(results))
+        return results, descriptions
         #for result in results:
          #   self.DB.addNewJournalRow(self.command_type, list(result), [results[result]], '')
 
