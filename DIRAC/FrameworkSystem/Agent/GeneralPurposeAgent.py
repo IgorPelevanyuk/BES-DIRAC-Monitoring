@@ -24,8 +24,8 @@ class GeneralPurposeAgent(AgentModule):
 
     def execute(self):
         self.log.info("execute")
-        x = PingCommand()
-        x.execute()
+        #x = PingCommand()
+        #x.execute()
         return S_OK()
   
     def beginExecution(self):
