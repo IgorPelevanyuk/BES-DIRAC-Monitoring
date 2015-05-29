@@ -113,7 +113,7 @@ class DMStestCommand(Command):
         return ['IHEPD-USER', 'USTC-USER', 'JINR-USER']
 
     def _create_test_file(self, size=1):
-        test_file = open(self.options['default_test_file'], 'w')
+        test_file = open(self.options['test_file'], 'w')
         test_file.write('b'*size)
 
     def _add_file(self, lfn, localfile, SE, guid=None):
