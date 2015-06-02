@@ -8,6 +8,7 @@ from DIRAC                                                  import gLogger, gCon
 from DIRAC.Core.Base.AgentModule                            import AgentModule
 from DIRAC.FrameworkSystem.DB.GeneralPurposeDB              import GeneralPurposeDB
 import subprocess
+import json
 
 # DMStestCommand
 from DIRAC.DataManagementSystem.Client.ReplicaManager       import ReplicaManager 
@@ -27,7 +28,14 @@ class GeneralPurposeAgent(AgentModule):
         #x = PingCommand()
         #x.execute()
         x = DMStestCommand()
-        result = x.execute()
+        results, descriptions = x.execute()
+        for key in results:
+            self.log.info(key)
+            self.log.info(str(list(key)))
+            self.log.info(str([results[key]]))
+            self.log.info(descriptions[key])
+            result = self.GPDB_dao.addNewJournalRow('dmstest', json.dumps(list(key)), json.dumps([results[key]]), descriptions[key])
+            self.log.info(str(result))
         return S_OK()
   
     def beginExecution(self):
@@ -170,14 +178,15 @@ class DMStestCommand(Command):
                 results[(se, se)] = upload_result['Value']['put']
                 descriptions[(se, se)] = 'Success'
             else:
-                results[(se, se)] = upload_result['Message']
+                results[(se, se)] = -1
                 descriptions[(se, se)] = upload_result['Message']
                 gLogger.info('Failed to upload the file to %s. Message: %s' % (se, upload_result['Message']))
             for destination in [x for x in SEs if x != se]:
                 replicate_result = self._replicate(lfn, destination)
                 if replicate_result['OK']:
                     results[(se, destination)] = replicate_result['Value']['replicate']
-                    descriptions[(se, destination)] = replicate_result['Message']
+                    #gLogger.info(replicate_result['Message'])
+                    descriptions[(se, destination)] = 'Success'
                 else:
                     results[(se, destination)] = -1
                     descriptions[(se, destination)] = replicate_result['Message']

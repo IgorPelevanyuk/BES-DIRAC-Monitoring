@@ -33,35 +33,35 @@ class GeneralPurposeDB(DB):
 
         if 'Journal' not in tablesInDB:
             tablesD['Journal'] = {'Fields': {'journal_id' : 'INTEGER AUTO_INCREMENT NOT NULL',
-                                             'type' : 'VARCHAR(128) NOT NULL',
-                                             'time' : 'DATETIME NOT NULL',
-                                             'key' : 'TEXT',
-                                             'result': 'TEXT',
+                                             'row_type' : 'VARCHAR(128) NOT NULL',
+                                             'insert_time' : 'DATETIME NOT NULL',
+                                             'key_json' : 'TEXT',
+                                             'result_json': 'TEXT',
                                              'description': 'TEXT'
                                         },
                                            'PrimaryKey' : 'journal_id',
                                  }
-
         return self._createTables(tablesD)
 
     def addNewJournalRow(self, row_type, key_list, result_list, description):
         """ Add onw new row to the GeneralPurposeDB.Journal table. 
         In case of problems return S_ERROR and logs the reason"""
 
-        sqlInsert = "INSERT INTO Journal (type, time, key, result, description) VALUES ('%s',%s,'%s','%s','%s')" % (row_type, 'UTC_TIMESTAMP()', key_list, result_list, description)
+        sqlInsert = "INSERT INTO Journal (row_type, insert_time, key_json, result_json, description) VALUES ('%s',%s,'%s','%s','%s')" % (row_type, 'UTC_TIMESTAMP()', key_list, result_list, description)
+        gLogger.info(sqlInsert)
         result = self._update(sqlInsert)
         if not result['OK']:
             gLogger.error('Failed to insert new row in addNewJournalRow function: %s.' % result['Message'])
         return result
 
-    def getAllLatestResults(self, period):
+    def getAllLatestResults(self, period=24):
         """ Returns the list of rows of all types for the last <period> hours."""
 
         if not isinstance(period, int):
             gLogger.error('<period> variable is not an instance of integer')
             return S_ERROR('<period> variable is not an instance of integer')
 
-        sqlQuerry = "SELECT type, time, key, result, description from Journal WHERE time >= DATE_SUB(UTC_TIMESTAMP(),INTERVAL %s HOUR)" % (str(period))
+        sqlQuerry = "SELECT row_type, insert_time, key_json, result_json, description from Journal WHERE insert_time >= DATE_SUB(UTC_TIMESTAMP(),INTERVAL %s HOUR)" % (str(period))
         result = self._query(sqlQuerry)
         if not result['OK']:
             gLogger.error('Failed to get Latest Results from Journal: %s' % result['Message'])
@@ -69,14 +69,14 @@ class GeneralPurposeDB(DB):
 
         return S_OK()
 
-    def getResults(self, row_type, period):
+    def getResults(self, row_type, period=24):
         """ Returns the list of rows of a particular type for the last <period> hours."""
 
         if not isinstance(period, int):
             gLogger.error('<period> variable is not an instance of integer')
             return S_ERROR('<period> variable is not an instance of integer')
 
-        sqlQuerry = "SELECT type, time, key, result, description from Journal WHERE type='%s' and time >= DATE_SUB(UTC_TIMESTAMP(),INTERVAL %s HOUR)" % (row_type, str(period))
+        sqlQuerry = "SELECT row_type, insert_time, key_json, result_json, description from Journal WHERE row_type='%s' and insert_time >= DATE_SUB(UTC_TIMESTAMP(),INTERVAL %s HOUR)" % (row_type, str(period))
         result = self._query(sqlQuerry)
         if not result['OK']:
             gLogger.error('Failed to get Latest Results from Journal: %s' % result['Message'])
