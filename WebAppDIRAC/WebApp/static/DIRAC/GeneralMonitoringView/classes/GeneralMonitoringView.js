@@ -91,7 +91,8 @@ Ext.define('DIRAC.GeneralMonitoringView.classes.GeneralMonitoringView', {
                   {name : 'failed', type: 'float'},
                   {name : 'done', type: 'float'},
                   {name : 'se', type: 'string'},
-                  {name : 'sesize', type: 'float'}],
+                  {name : 'sesize', type: 'float'},
+                  {name : 'sestatus', type: 'string'}],
         autoLoad : true,
         pageSize : 20,
 
@@ -148,6 +149,12 @@ Ext.define('DIRAC.GeneralMonitoringView.classes.GeneralMonitoringView', {
             header : 'SE Ocupied GB',
             sortable : true,
             dataIndex : 'sesize',
+            align : 'right'
+        },
+        {
+            header : 'SE status',
+            sortable : true,
+            dataIndex : 'sestatus',
             align : 'right'
         }]
     });
