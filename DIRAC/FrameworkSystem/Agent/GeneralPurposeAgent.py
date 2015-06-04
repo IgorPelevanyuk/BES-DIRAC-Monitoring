@@ -176,26 +176,26 @@ class DMStestCommand(Command):
             upload_result = self._add_file(lfn, self.options['test_file'], se)
             if upload_result['OK']:
                 results[(se, se)] = upload_result['Value']['put']
-                descriptions[(se, se)] = 'Success'
+                descriptions[(se, se)] = 'Upload: Success; '
             else:
                 results[(se, se)] = -1
-                descriptions[(se, se)] = upload_result['Message']
+                descriptions[(se, se)] = 'Upload: Fail - %s; ' % upload_result['Message']
                 gLogger.info('Failed to upload the file to %s. Message: %s' % (se, upload_result['Message']))
             for destination in [x for x in SEs if x != se]:
                 replicate_result = self._replicate(lfn, destination)
                 if replicate_result['OK']:
                     results[(se, destination)] = replicate_result['Value']['replicate']
                     #gLogger.info(replicate_result['Message'])
-                    descriptions[(se, destination)] = 'Success'
+                    descriptions[(se, destination)] = descriptions.get((se, destination), '') + ('Replication to %s: Success; ' % destination)
                 else:
                     results[(se, destination)] = -1
-                    descriptions[(se, destination)] = replicate_result['Message']
+                    descriptions[(se, destination)] = descriptions.get((se, destination), '') + ('Replication to %s: Fail - %s; ' % (destination, replicate_result['Message']))
                     gLogger.info('Failed to replicate the file from %s to %s. Message: %s' % (se, destination, replicate_result['Message']))
             remove_result = self._remove_file(lfn)
             if remove_result['OK']:
-                descriptions[(se, se)] += 'Test file successfully removed'
+                descriptions[(se, se)] += 'Deletion: Success;'
             else:
-                descriptions[(se, se)] += remove_result['Message']
+                descriptions[(se, se)] += 'Deletion: Fail - %s' % remove_result['Message']
                 gLogger.info('Failed to remove file from %s. Message: %s' % (se, remove_result['Message']))
 
         gLogger.info(str(results))
