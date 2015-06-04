@@ -16,14 +16,14 @@ cp /opt/dirac/pro/DIRAC/FrameworkSystem/Agent/SAMLauncherAgent.py DIRAC/Framewor
 cp /opt/dirac/pro/WebAppDIRAC/WebApp/handler/SAMHandler.py WebAppDIRAC/WebApp/handler/SAMHandler.py
 cp -r /opt/dirac/pro/WebAppDIRAC/WebApp/static/DIRAC/SAM WebAppDIRAC/WebApp/static/DIRAC/
 
-cp /opt/dirac/pro/WebAppDIRAC/WebApp/handler/BusynessMonitorHandler.py WebAppDIRAC/WebApp/handler/BusynessMonitorHandler.py
+#cp /opt/dirac/pro/WebAppDIRAC/WebApp/handler/BusynessMonitorHandler.py WebAppDIRAC/WebApp/handler/BusynessMonitorHandler.py
 cp -r /opt/dirac/pro/WebAppDIRAC/WebApp/static/DIRAC/BusynessMonitor WebAppDIRAC/WebApp/static/DIRAC/
 
-cp /opt/dirac/pro/WebAppDIRAC/WebApp/handler/HostStatHandler.py WebAppDIRAC/WebApp/handler/HostStatHandler.py
+#cp /opt/dirac/pro/WebAppDIRAC/WebApp/handler/HostStatHandler.py WebAppDIRAC/WebApp/handler/HostStatHandler.py
 cp -r /opt/dirac/pro/WebAppDIRAC/WebApp/static/DIRAC/HostStat WebAppDIRAC/WebApp/static/DIRAC/
 
 cp /opt/dirac/pro/WebAppDIRAC/WebApp/handler/SAMChartsHandler.py WebAppDIRAC/WebApp/handler/SAMChartsHandler.py
 cp -r /opt/dirac/pro/WebAppDIRAC/WebApp/static/DIRAC/SAMCharts WebAppDIRAC/WebApp/static/DIRAC/
 
-cp /opt/dirac/pro/WebAppDIRAC/WebApp/handler/GeneralMonitoringViewHandler.py WebAppDIRAC/WebApp/handler/GeneralMonitoringViewHandler.py
+#cp /opt/dirac/pro/WebAppDIRAC/WebApp/handler/GeneralMonitoringViewHandler.py WebAppDIRAC/WebApp/handler/GeneralMonitoringViewHandler.py
 cp -r /opt/dirac/pro/WebAppDIRAC/WebApp/static/DIRAC/GeneralMonitoringView WebAppDIRAC/WebApp/static/DIRAC/
