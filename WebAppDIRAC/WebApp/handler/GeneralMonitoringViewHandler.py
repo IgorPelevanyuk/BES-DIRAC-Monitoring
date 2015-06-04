@@ -4,6 +4,7 @@ from DIRAC.WorkloadManagementSystem.DB.JobDB import JobDB
 from DIRAC import gConfig
 
 import math
+import json
 
 def trunc(float_num):
     '''Truncates/pads a float float_num to n decimal places without rounding'''
@@ -14,10 +15,10 @@ def trunc(float_num):
 
 USE_PURE_MYSQL = True
 
-def mysql_querry(querry, db_name):
+def mysql_querry(querry, db_name, mysql_host='diracdb.ihep.ac.cn'):
     if USE_PURE_MYSQL:
         import MySQLdb
-        dba_object = MySQLdb.connect(host="diracdb.ihep.ac.cn",
+        dba_object = MySQLdb.connect(host=mysql_host,
                          user="monitor",
                          passwd="###DIRAC_DB_PASS###",
                          db=db_name)
@@ -52,6 +53,7 @@ class GeneralMonitoringViewHandler(WebHandler):
     doneSQL = 'select Site, count(*) from Jobs where Status="Done" group by Site;'
     waitingSQL = 'select Site, count(*) from Jobs where Status="Waiting" or Status="Checking" group by Site;'
     dataOnSEsSQL = 'select SE.SEName, sum(F.Size) from FC_Replicas R, FC_Files F, FC_StorageElements SE where R.FileID=F.FileID and R.SEID=SE.SEID group by R.SEID;'
+    seStatusSQL = 'select key_json, result_json, description from Journal J INNER JOIN (select row_type, key_json, max(insert_time) as insert_time from Journal where insert_time>=DATE_SUB(UTC_TIMESTAMP(),INTERVAL 2 HOUR) and row_type="dmstest" group by row_type, key_json) as max using(row_type, key_json, insert_time);'
 
     def updateSending(self, value_name, request_result):
         """ Update currend dictionary for sending. Accepts request_result as 
@@ -95,6 +97,17 @@ class GeneralMonitoringViewHandler(WebHandler):
             site_size.append((site, se_size[se]))
         is_ok = is_ok and self.updateSending('sesize', S_OK(site_size))
 
+        se_status = {}
+        site_se_status = []
+        result = mysql_querry(self.seStatusSQL, 'GeneralPurposeDB', 'localhost')
+        for row in result['Value']:
+            key_val = json.loads(row[0])
+            if len(set(key_val)) == 1: # If there is two same SE in the key_val
+                se_status[key_val[0]] = json.loads(row[1])[0]
+        for (site, se) in getSiteToSEmapping():
+            site_se_status.append((site, se_status.get(se, 'Fail')))
+        is_ok = is_ok and self.updateSending('sestatus', S_OK(site_se_status))
+
         if is_ok:
             return S_OK()
         else:
@@ -114,6 +127,7 @@ class GeneralMonitoringViewHandler(WebHandler):
                 row['done'] = self.to_send[site]['done']
                 row['se'] = self.to_send[site]['se']
                 row['sesize'] = trunc(self.to_send[site]['sesize']/1024/1024/1024)
+                row['sestatus'] = self.to_send[site]['sestatus']
                 data.append(row)
             self.write({"result": data})
         else:
