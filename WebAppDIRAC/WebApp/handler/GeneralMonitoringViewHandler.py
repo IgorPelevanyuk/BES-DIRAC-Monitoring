@@ -47,7 +47,7 @@ class GeneralMonitoringViewHandler(WebHandler):
 
     AUTH_PROPS = "all"
     to_send = {}
-    defaultSite = {'running': 0, 'waiting': 0, 'failed': 0, 'done': 0, 'se': '', 'sesize': 0}
+    defaultSite = {'running': 0, 'waiting': 0, 'failed': 0, 'done': 0, 'se': '', 'sesize': 0, 'sestatus':''}
     runningSQL = 'select Site, count(*) from Jobs where Status="Running" group by Site;'
     failedSQL = 'select Site, count(*) from Jobs where Status="Failed" group by Site;'
     doneSQL = 'select Site, count(*) from Jobs where Status="Done" group by Site;'
@@ -106,6 +106,7 @@ class GeneralMonitoringViewHandler(WebHandler):
                 se_status[key_val[0]] = json.loads(row[1])[0]
         for (site, se) in getSiteToSEmapping():
             site_se_status.append((site, se_status.get(se, 'Fail')))
+        gLogger.info(site_se_status)
         is_ok = is_ok and self.updateSending('sestatus', S_OK(site_se_status))
 
         if is_ok:
