@@ -75,11 +75,25 @@ Ext.define('DIRAC.GeneralMonitoringView.classes.GeneralMonitoringView', {
       var me = this;
 
       function sestatusRenderer(value, meta) {
-        if(parseInt(value)!='Fail') {
+        if (value == "")
+          return ''
+        if (value != 'Fail') {
           meta.style = "background-color:green;";
         } else {
           meta.style = "background-color:red;";
         }
+        return value
+      }
+
+      function waitingRenderer(value, metaData, record, row, col, store, gridView) {
+        console.log('===================');
+        console.log(value);
+        console.log(metaData);
+        console.log(record);
+        console.log(row);
+        console.log(col);
+        console.log(gridView);
+        console.log('===================');
       }
 
       me.dataStore = new Ext.data.JsonStore({
@@ -133,7 +147,8 @@ Ext.define('DIRAC.GeneralMonitoringView.classes.GeneralMonitoringView', {
             header : 'Waiting',
             sortable : true,
             dataIndex : 'waiting',
-            align : 'right'
+            align : 'right',
+            renderer: waitingRenderer
         },
         {
             header : 'Failed',
