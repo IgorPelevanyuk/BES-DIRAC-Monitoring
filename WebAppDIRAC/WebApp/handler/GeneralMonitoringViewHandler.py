@@ -128,7 +128,7 @@ class GeneralMonitoringViewHandler(WebHandler):
                 row['done'] = self.to_send[site]['done']
                 row['se'] = self.to_send[site]['se']
                 row['sesize'] = trunc(self.to_send[site]['sesize']/1024/1024/1024)
-                row['sestatus'] = self.to_send[site]['sestatus']
+                row['sestatus'] = trunc(self.to_send[site]['sestatus']) if isinstance(self.to_send[site]['sestatus'], int, float) else self.to_send[site]['sestatus']
                 data.append(row)
             self.write({"result": data})
         else:
