@@ -91,7 +91,7 @@ Ext.define('DIRAC.GeneralMonitoringView.classes.GeneralMonitoringView', {
                   {name : 'failed', type: 'float'},
                   {name : 'done', type: 'float'},
                   {name : 'se', type: 'string'},
-                  {name : 'sesize', type: 'float'},
+                  {name : 'sesize', type: 'string'},
                   {name : 'sestatus', type: 'string'}],
         autoLoad : true,
         pageSize : 20,
