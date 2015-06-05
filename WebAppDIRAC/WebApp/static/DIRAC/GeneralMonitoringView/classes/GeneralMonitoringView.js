@@ -85,15 +85,11 @@ Ext.define('DIRAC.GeneralMonitoringView.classes.GeneralMonitoringView', {
         return value
       }
 
-      function waitingRenderer(value, metaData, record, row, col, store, gridView) {
-        console.log('===================');
-        console.log(value);
-        console.log(metaData);
-        console.log(record);
-        console.log(row);
-        console.log(col);
-        console.log(gridView);
-        console.log('===================');
+      function runningVSwaitingRenderer(value, meta, record, row, col, store, gridView) {
+        if (((record.data.waiting != 0)&&(record.data.running==0))||(1.0*value/record.data.running > 2)) {
+          metaData.style = "background-color:red;";
+        }
+        return value.toString();
       }
 
       me.dataStore = new Ext.data.JsonStore({
@@ -141,7 +137,8 @@ Ext.define('DIRAC.GeneralMonitoringView.classes.GeneralMonitoringView', {
             header : 'Running',
             sortable : true,
             dataIndex : 'running',
-            align : 'right'
+            align : 'right',
+            renderer: 'runningVSwaitingRenderer'
         },
         {
             header : 'Waiting',
