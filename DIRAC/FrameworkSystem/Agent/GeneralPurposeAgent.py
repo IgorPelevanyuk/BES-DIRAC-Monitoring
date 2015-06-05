@@ -118,7 +118,7 @@ class DMStestCommand(Command):
         
     def _get_SEs(self):
         #TODO: implement the real functionality instead of the mock
-        return ['IHEPD-USER', 'USTC-USER', 'JINR-USER']
+        return ['IHEPD-USER', 'USTC-USER', 'JINR-USER', 'WHU-USER', 'UMN-USER']
 
     def _create_test_file(self, size=1):
         test_file = open(self.options['test_file'], 'w')
