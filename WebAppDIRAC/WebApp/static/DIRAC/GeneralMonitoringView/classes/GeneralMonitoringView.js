@@ -74,6 +74,14 @@ Ext.define('DIRAC.GeneralMonitoringView.classes.GeneralMonitoringView', {
       }
       var me = this;
 
+      function sestatusRenderer(value, meta) {
+        if(parseInt(value)!='Fail') {
+          meta.style = "background-color:green;";
+        } else {
+          meta.style = "background-color:red;";
+        }
+      }
+
       me.dataStore = new Ext.data.JsonStore({
 
         proxy : {
@@ -155,7 +163,8 @@ Ext.define('DIRAC.GeneralMonitoringView.classes.GeneralMonitoringView', {
             header : 'SE status',
             sortable : true,
             dataIndex : 'sestatus',
-            align : 'right'
+            align : 'right',
+            renderer: sestatusRenderer
         }]
     });
      me.add([me.grid]);
