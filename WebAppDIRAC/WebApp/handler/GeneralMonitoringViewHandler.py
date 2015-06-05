@@ -47,7 +47,7 @@ class GeneralMonitoringViewHandler(WebHandler):
 
     AUTH_PROPS = "all"
     to_send = {}
-    defaultSite = {'running': 0, 'waiting': 0, 'failed': 0, 'done': 0, 'se': '', 'sesize': 0, 'sestatus':''}
+    defaultSite = {'running': 0, 'waiting': 0, 'failed': 0, 'done': 0, 'se': '', 'sesize': '', 'sestatus':''}
     runningSQL = 'select Site, count(*) from Jobs where Status="Running" group by Site;'
     failedSQL = 'select Site, count(*) from Jobs where Status="Failed" group by Site;'
     doneSQL = 'select Site, count(*) from Jobs where Status="Done" group by Site;'
