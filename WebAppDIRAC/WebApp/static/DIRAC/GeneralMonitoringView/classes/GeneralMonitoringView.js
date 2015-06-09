@@ -82,6 +82,8 @@ Ext.define('DIRAC.GeneralMonitoringView.classes.GeneralMonitoringView', {
         } else {
           meta.style = "background-color:red;";
         }
+        var description = record.get('description');
+        metaData.tdAttr = 'data-qtip="' + description + '"'
         return value
       }
 
