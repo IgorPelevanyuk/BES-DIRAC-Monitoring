@@ -27,7 +27,7 @@ class GeneralPurposeAgent(AgentModule):
         self.log.info("execute")
         #x = PingCommand()
         #x.execute()
-        x = DMStestCommand()
+        x = DMStestCommand().execute()
         gLogger.info(x)
         return S_OK()
   
