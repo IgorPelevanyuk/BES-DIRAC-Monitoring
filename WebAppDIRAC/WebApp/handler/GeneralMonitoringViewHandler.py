@@ -98,16 +98,22 @@ class GeneralMonitoringViewHandler(WebHandler):
         is_ok = is_ok and self.updateSending('sesize', S_OK(site_size))
 
         se_status = {}
+        se_description = {}
         site_se_status = []
+        site_se_description = []
         result = mysql_querry(self.seStatusSQL, 'GeneralPurposeDB', 'localhost')
         for row in result['Value']:
             key_val = json.loads(row[0])
+            description_val = row[2]
             if len(set(key_val)) == 1: # If there is two same SE in the key_val
                 se_status[key_val[0]] = json.loads(row[1])[0]
+                se_description[key_val[0]] = description_val
         for (site, se) in getSiteToSEmapping():
             site_se_status.append((site, se_status.get(se, 'Fail')))
+            site_se_description.append((site, se_description.get(se, 'No log avaliable')))
         gLogger.info(site_se_status)
         is_ok = is_ok and self.updateSending('sestatus', S_OK(site_se_status))
+        is_ok = is_ok and self.updateSending('sedescription', S_OK(site_se_description))
 
         if is_ok:
             return S_OK()
@@ -129,6 +135,7 @@ class GeneralMonitoringViewHandler(WebHandler):
                 row['se'] = self.to_send[site]['se']
                 row['sesize'] = trunc(self.to_send[site]['sesize']/1024/1024/1024) if not isinstance(self.to_send[site]['sesize'], (str)) else ''
                 row['sestatus'] = trunc(self.to_send[site]['sestatus']) if isinstance(self.to_send[site]['sestatus'], (int, float)) else self.to_send[site]['sestatus']
+                row['sedescription'] = self.to_send[site]['sedescription']
                 data.append(row)
             self.write({"result": data})
         else:
