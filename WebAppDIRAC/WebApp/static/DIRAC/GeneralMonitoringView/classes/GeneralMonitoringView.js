@@ -86,7 +86,7 @@ Ext.define('DIRAC.GeneralMonitoringView.classes.GeneralMonitoringView', {
       }
 
       function runningVSwaitingRenderer(value, meta, record, row, col, store, gridView) {
-        if (((record.data.waiting != 0)&&(record.data.running==0))||(1.0*value/record.data.running > 2)) {
+        if (((record.data.waiting != 0)&&(record.data.running==0))||(1.0*record.data.waiting/record.data.running > 2)) {
           metaData.style = "background-color:red;";
         }
         return value.toString();
@@ -138,14 +138,14 @@ Ext.define('DIRAC.GeneralMonitoringView.classes.GeneralMonitoringView', {
             sortable : true,
             dataIndex : 'running',
             align : 'right',
-            renderer: 'runningVSwaitingRenderer'
+            renderer: runningVSwaitingRenderer
         },
         {
             header : 'Waiting',
             sortable : true,
             dataIndex : 'waiting',
             align : 'right',
-            renderer: waitingRenderer
+            renderer: runningVSwaitingRenderer
         },
         {
             header : 'Failed',
