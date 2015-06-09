@@ -28,14 +28,7 @@ class GeneralPurposeAgent(AgentModule):
         #x = PingCommand()
         #x.execute()
         x = DMStestCommand()
-        results, descriptions = x.execute()
-        for key in results:
-            self.log.info(key)
-            self.log.info(str(list(key)))
-            self.log.info(str([results[key]]))
-            self.log.info(descriptions[key])
-            result = self.GPDB_dao.addNewJournalRow('dmstest', json.dumps(list(key)), json.dumps([results[key]]), descriptions[key])
-            self.log.info(str(result))
+        gLogger.info(x)
         return S_OK()
   
     def beginExecution(self):
@@ -59,6 +52,9 @@ class Command(object):
         self.options = {}
 
     def execute(self):
+        return S_OK()
+
+    def write_results(self):
         return S_OK()
 
 class PingCECommand(Command):
@@ -199,7 +195,27 @@ class DMStestCommand(Command):
                 gLogger.info('Failed to remove file from %s. Message: %s' % (se, remove_result['Message']))
 
         gLogger.info(str(results))
-        return results, descriptions
+        self.write_results(results, descriptions)
+
+    def write_results(self, results, descriptions):
+        isOK = True
+        error_messages = ''
+        for key in results:
+            #self.log.info(key)
+            #self.log.info(str(list(key)))
+            #self.log.info(str([results[key]]))
+            #self.log.info(descriptions[key])
+            result = self.DB.addNewJournalRow('dmstest', json.dumps(list(key)), json.dumps([results[key]]), descriptions[key])
+            if not result['OK']:
+                isOK = False
+                error_messages += ('Failed to add row in DB' + result['Message'])
+            gLogger.info(str(result))
+        if isOK:
+            return S_OK()
+        else:
+            return S_ERROR(error_messages)
+
+
         #for result in results:
          #   self.DB.addNewJournalRow(self.command_type, list(result), [results[result]], '')
 
