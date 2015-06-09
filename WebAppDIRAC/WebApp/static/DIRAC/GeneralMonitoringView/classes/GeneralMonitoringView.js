@@ -74,7 +74,7 @@ Ext.define('DIRAC.GeneralMonitoringView.classes.GeneralMonitoringView', {
       }
       var me = this;
 
-      function sestatusRenderer(value, meta) {
+      function sestatusRenderer(value, meta, record) {
         if (value == "")
           return ''
         if (value != 'Fail') {
@@ -83,8 +83,8 @@ Ext.define('DIRAC.GeneralMonitoringView.classes.GeneralMonitoringView', {
           meta.style = "background-color:red;";
         }
         var description = record.get('description');
-        metaData.tdAttr = 'data-qtip="' + description + '"'
-        return value
+        metaData.tdAttr = 'data-qtip="' + description + '"';
+        return value;
       }
 
       function runningVSwaitingRenderer(value, meta, record, row, col, store, gridView) {
