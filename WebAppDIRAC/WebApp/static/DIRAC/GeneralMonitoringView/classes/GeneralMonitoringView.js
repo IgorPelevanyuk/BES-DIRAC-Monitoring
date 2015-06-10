@@ -74,7 +74,8 @@ Ext.define('DIRAC.GeneralMonitoringView.classes.GeneralMonitoringView', {
       }
       var me = this;
 
-      function sestatusRenderer(value, meta, record) {
+      function sestatusRenderer(value, meta, record, row, col) {
+        console.log(value);
         if (value == "")
           return ''
         if (value != 'Fail') {
@@ -82,14 +83,15 @@ Ext.define('DIRAC.GeneralMonitoringView.classes.GeneralMonitoringView', {
         } else {
           meta.style = "background-color:red;";
         }
-        var description = record.get('description');
-        metaData.tdAttr = 'data-qtip="' + description + '"';
+        console.log(value);
+        var description = me.dataStore.getRange()[row].data['sedescription'];
+        meta.tdAttr = 'data-qtip="' + description + '"';
         return value;
       }
 
       function runningVSwaitingRenderer(value, meta, record, row, col, store, gridView) {
         if (((record.data.waiting != 0)&&(record.data.running==0))||(1.0*record.data.waiting/record.data.running > 2)) {
-          metaData.style = "background-color:red;";
+          meta.style = "background-color:red;";
         }
         return value.toString();
       }
