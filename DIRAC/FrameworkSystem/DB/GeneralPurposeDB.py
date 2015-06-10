@@ -46,7 +46,8 @@ class GeneralPurposeDB(DB):
     def addNewJournalRow(self, row_type, key_list, result_list, description):
         """ Add onw new row to the GeneralPurposeDB.Journal table. 
         In case of problems return S_ERROR and logs the reason"""
-
+        
+        description = description.replace("'", '"')
         sqlInsert = "INSERT INTO Journal (row_type, insert_time, key_json, result_json, description) VALUES ('%s',%s,'%s','%s','%s')" % (row_type, 'UTC_TIMESTAMP()', key_list, result_list, description)
         gLogger.info(sqlInsert)
         result = self._update(sqlInsert)
