@@ -68,6 +68,11 @@ Ext.define('DIRAC.GeneralMonitoringView.classes.GeneralMonitoringView', {
             autoLoad: true,
             pageSize: 20,
         });
+
+        var WIDTH_SITE = 185;
+        var WIDTH_RWFD = 40;
+        var WIDTH_SE = 100;
+        var WIDTH_SE_STATUS = 56;
         me.grid = Ext.create('Ext.grid.Panel', {
             region: 'center',
             store: me.dataStore,
@@ -77,28 +82,33 @@ Ext.define('DIRAC.GeneralMonitoringView.classes.GeneralMonitoringView', {
                 sortable: true,
                 dataIndex: 'site',
                 align: 'left',
+                width: WIDTH_SITE
             }, {
                 header: 'Running',
                 sortable: true,
                 dataIndex: 'running',
                 align: 'right',
+                width: WIDTH_RWFD,
                 renderer: runningVSwaitingRenderer
             }, {
                 header: 'Waiting',
                 sortable: true,
                 dataIndex: 'waiting',
                 align: 'right',
+                width: WIDTH_RWFD,
                 renderer: runningVSwaitingRenderer
             }, {
                 header: 'Failed',
                 sortable: true,
                 dataIndex: 'failed',
-                align: 'right'
+                align: 'right',
+                width: WIDTH_RWFD
             }, {
                 header: 'Done',
                 sortable: true,
                 dataIndex: 'done',
-                align: 'right'
+                align: 'right',
+                width: WIDTH_RWFD
             }, {
                 header: 'SE',
                 sortable: true,
@@ -108,12 +118,14 @@ Ext.define('DIRAC.GeneralMonitoringView.classes.GeneralMonitoringView', {
                 header: 'SE Ocupied GB',
                 sortable: true,
                 dataIndex: 'sesize',
-                align: 'right'
+                align: 'right',
+                width: WIDTH_SE
             }, {
                 header: 'SE status',
                 sortable: true,
                 dataIndex: 'sestatus',
                 align: 'right',
+                width: WIDTH_SE_STATUS,
                 renderer: sestatusRenderer
             }]
         });
