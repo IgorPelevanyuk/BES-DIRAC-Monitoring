@@ -10,7 +10,7 @@ Ext.define('DIRAC.GeneralMonitoringView.classes.GeneralMonitoringView', {
         var me = this;
         me.launcher.title = "GRID Overview";
         me.launcher.maximized = false;
-        me.launcher.width = 1000;
+        me.launcher.width = 580;
         me.launcher.height = 500;
         me.launcher.x = 0;
         me.launcher.y = 0;
@@ -71,7 +71,8 @@ Ext.define('DIRAC.GeneralMonitoringView.classes.GeneralMonitoringView', {
 
         var WIDTH_SITE = 185;
         var WIDTH_RWFD = 40;
-        var WIDTH_SE = 100;
+        var WIDTH_SE = 75;
+        var WIDTH_SE_OCUPIED = 80;
         var WIDTH_SE_STATUS = 56;
         me.grid = Ext.create('Ext.grid.Panel', {
             region: 'center',
@@ -113,13 +114,14 @@ Ext.define('DIRAC.GeneralMonitoringView.classes.GeneralMonitoringView', {
                 header: 'SE',
                 sortable: true,
                 dataIndex: 'se',
-                align: 'right'
+                align: 'right',
+                width: WIDTH_SE
             }, {
                 header: 'SE Ocupied GB',
                 sortable: true,
                 dataIndex: 'sesize',
                 align: 'right',
-                width: WIDTH_SE
+                width: WIDTH_SE_OCUPIED
             }, {
                 header: 'SE status',
                 sortable: true,
