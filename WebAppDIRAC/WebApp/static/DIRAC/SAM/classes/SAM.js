@@ -26,6 +26,7 @@ Ext.define('DIRAC.SAM.classes.SAM', {
     },
 
     buildUI: function() {
+        var me = this;
         function view_showHistory(site, test) {
             var data_store = new Ext.data.JsonStore({
                 proxy: {
@@ -106,12 +107,6 @@ Ext.define('DIRAC.SAM.classes.SAM', {
                         height: 40,
                         renderer: function(storeItem, item) {
                             var time = Ext.Date.format(storeItem.get('time'), 'd M Y H:i');
-                            var state_map = {
-                                1: 'Banned',
-                                2: 'Fail',
-                                4: 'Timeout',
-                                5: 'Success'
-                            };
                             var state = '';
                             if (storeItem.get('state') in state_map)
                                 state = state_map[storeItem.get('state')];
@@ -174,7 +169,6 @@ Ext.define('DIRAC.SAM.classes.SAM', {
         function secToMin(val) {
             return (Math.floor(val / 60)).toString() + ' min';
         }
-        var me = this;
 
         me.dataStore = new Ext.data.JsonStore({
             proxy: {
@@ -195,6 +189,11 @@ Ext.define('DIRAC.SAM.classes.SAM', {
             pageSize: 20,
         });
 
+        var WIDTH_SITE = 185;
+        var WIDTH_RESULT = 64;
+        var WIDTH_TEST = 80;
+        var WIDTH_RECEIVED_AGO = 80;
+        var WIDTH_DESCRIPTION = 200;
         me.grid = Ext.create('Ext.grid.Panel', {
             region: 'center',
             store: me.dataStore,
@@ -210,6 +209,7 @@ Ext.define('DIRAC.SAM.classes.SAM', {
                 sortable: true,
                 dataIndex: 'site',
                 align: 'left',
+                width: WIDTH_SITE,
                 renderer: function(val) {
                     return val;
                 },
@@ -217,27 +217,30 @@ Ext.define('DIRAC.SAM.classes.SAM', {
                 header: 'Test',
                 sortable: true,
                 dataIndex: 'test',
-                align: 'left'
+                align: 'left',
+                width: WIDTH_TEST,
             }, {
                 header: 'Result',
                 sortable: true,
                 dataIndex: 'result',
                 align: 'right',
-                renderer: colorerBold
+                width: WIDTH_RESULT,
+                renderer: colorerBold,
             }, {
                 header: 'Received ago',
                 sortable: false,
                 dataIndex: 'received',
                 align: 'right',
+                width: WIDTH_RECEIVED_AGO,
                 renderer: secToMin
             }, {
                 header: 'Description',
                 sortable: true,
                 dataIndex: 'description',
-                align: 'right'
+                align: 'right',
+                width: WIDTH_DESCRIPTION,
             }]
         });
         me.add([me.grid]);
-
     }
 });
