@@ -154,7 +154,9 @@ Ext.define('DIRAC.SAM.classes.SAM', {
                  }
              }],
              items: [chart]
-         });
+        });
+        Ext.WindowManager.register(win);
+        Ext.WindowManager.bringToFront(win);
       }
 
 
