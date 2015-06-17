@@ -7,23 +7,21 @@
 """
 __RCSID__ = "c9278cc (2012-04-05 01:56:22 +0200) ricardo <Ricardo.Graciani@gmail.com>"
 
-from DIRAC                                                  import gLogger, gConfig, S_OK, S_ERROR #@UnresolvedImport
-from DIRAC.Core.Base.AgentModule                            import AgentModule #@UnresolvedImport
-from DIRAC.Interfaces.API.Job                               import Job #@UnresolvedImport
-from DIRAC.Interfaces.API.Dirac                             import Dirac #@UnresolvedImport
-from DIRAC.Interfaces.API.DiracAdmin                        import DiracAdmin #@UnresolvedImport
+from DIRAC                                                  import gLogger, gConfig, S_OK, S_ERROR
+from DIRAC.Core.Base.AgentModule                            import AgentModule
+from DIRAC.Interfaces.API.Job                               import Job
+from DIRAC.Interfaces.API.Dirac                             import Dirac
+from DIRAC.Interfaces.API.DiracAdmin                        import DiracAdmin
 from DIRAC.FrameworkSystem.DB.SAMDB                         import SAMDB
-import os
 
 SAM_TEST_DIR = '/opt/dirac/pro/DIRAC/FrameworkSystem/Agent/sam_tests/'
-class SAMLauncherAgent( AgentModule ):
+class SAMLauncherAgent(AgentModule):
 
     def _getJobStatus(self, wms_job_id):
-        status, message = "", ""
         result = self.dirac.status(wms_job_id)
         if result['OK'] and wms_job_id in result['Value']:
             gLogger.info(result)
-            responce = result['Value'] [wms_job_id]
+            responce = result['Value'][wms_job_id]
             return S_OK((responce['Status'], responce['MinorStatus']))
         return S_ERROR()
 
@@ -34,27 +32,27 @@ class SAMLauncherAgent( AgentModule ):
         else:
             gLogger.error(result['Message'])
         return []
-    
+
     def _submitJob(self, result_id, executable, test_name, site_name):
         executable = executable.split('&')
         j = Job()
-        j.setExecutable('python' , arguments = executable[0]+" "+str(result_id))
+        j.setExecutable('python', arguments=executable[0] + " " + str(result_id))
         sandBox = []
         for file_name in executable:
             sandBox.append(SAM_TEST_DIR + file_name)
         j.setInputSandbox(sandBox)
         j.setName(test_name)
-        j.setJobGroup( 'sam_test' )
-        j.setDestination( site_name )
+        j.setJobGroup('sam_test')
+        j.setDestination(site_name)
         result = self.dirac.submit(j)
         return result
- 
+
     def _updateSiteList(self):
         sitesInConfig = []
         sitesInDB = []
         #Calculate Max pledges for Cluster and GRIDs
         for directory in  gConfig.getSections('/Resources/Sites')['Value']:
-            for site in gConfig.getSections('/Resources/Sites/'+directory)['Value']:
+            for site in gConfig.getSections('/Resources/Sites/' + directory)['Value']:
                 sitesInConfig.append(site)
         result = self.samdb_dao.getSiteList()
         if result['OK']:
@@ -98,7 +96,7 @@ class SAMLauncherAgent( AgentModule ):
             site_name = test[2]
             test_name = test[3]
             executable = test[4]
-            
+
             result = self.samdb_dao.startNewTest(site_id, test_id)
             if not result['OK']:
                 break
@@ -128,48 +126,45 @@ class SAMLauncherAgent( AgentModule ):
             result_id = test[0]
             wms_job_id = test[1]
             timeout = test[2]
-            
+
             result = self._getJobStatus(int(wms_job_id))
             if result['OK']:
-                if result['Value'][0]=='Fail':
+                if result['Value'][0] == 'Fail':
                     self.samdb_dao.setResult('Fail', result_id, result['Value'][1])
                 else:
                     self.samdb_dao.setResult('Timeout', result_id, 'Timeout fail after '+str(timeout/60)+' min of silence')
             else:
                 self.samdb_dao.setResult('Timeout', result_id, 'WARNING: Unable to get status. Timeout fail after '+str(timeout/60)+' min of silence')
-            
-            result = self.dirac.delete(int(wms_job_id))
 
+            result = self.dirac.delete(int(wms_job_id))
             if result['OK']:
                 gLogger.info('Successfully killed the job with id: %s' % wms_job_id)
             else:
-                gLogger.error("Failed to kill the job with id: %s" % wms_job_id )
+                gLogger.error("Failed to kill the job with id: %s" % wms_job_id)
         return S_OK()
 
-    def initialize( self ):
+    def initialize(self):
         self.diracAdmin = DiracAdmin()
         self.dirac = Dirac()
         self.samdb_dao = SAMDB()
 
         return S_OK()
 
-    def execute( self ):
+    def execute(self):
         self._startNewTests()
         self._stopOldTests()
         return S_OK()
-  
+
     def beginExecution(self):
         self._updateSiteList()
-        self.log.info( "CYCLE START!!" )
-    
+        self.log.info("CYCLE START!!")
         return S_OK()
 
     def endExecution(self):
-        self.log.info( "CYCLE STOP!!" )
+        self.log.info("CYCLE STOP!!")
 
         return S_OK()
 
     def finalize(self):
-        self.log.info( "GRATEFUL EXIT. BYE" )
-    
+        self.log.info("GRATEFUL EXIT. BYE")
         return S_OK()
