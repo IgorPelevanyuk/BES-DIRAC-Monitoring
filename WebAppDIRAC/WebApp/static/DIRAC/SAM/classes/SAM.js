@@ -11,7 +11,7 @@ Ext.define('DIRAC.SAM.classes.SAM', {
         me.launcher.title = "CE availability monitoring";
         me.launcher.maximized = false;
         me.launcher.width = 650;
-        me.launcher.height = 254;
+        me.launcher.height = 500;
         me.launcher.x = 0;
         me.launcher.y = 0;
         Ext.apply(me, {
