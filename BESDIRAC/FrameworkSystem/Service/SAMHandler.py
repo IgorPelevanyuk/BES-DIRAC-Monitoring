@@ -2,7 +2,7 @@
 __RCSID__ = "3e8fb84 (2011-02-18 15:45:18 +0000) Ricardo Graciani <graciani@ecm.ub.es>"
 import types
 from DIRAC import S_OK, S_ERROR, gConfig, gLogger #@UnresolvedImport
-from DIRAC.FrameworkSystem.DB.SAMDB import SAMDB
+from BESDIRAC.FrameworkSystem.DB.SAMDB import SAMDB
 from DIRAC.Core.DISET.RequestHandler import RequestHandler #@UnresolvedImport
 
 import urllib
