@@ -230,6 +230,19 @@ class SAMDB(DB):
             return result
 
         site_id, test_id = int(result['Value'][0][0]), int(result['Value'][0][1])
+        site_id, test_id =  int(result['Value'][0][0]), int(result['Value'][0][1])
+        #>>>>>> TEST SAMDB->GPDB
+        test_name, site_name = result['Value'][0][2], result['Value'][0][3]
+        import json
+        from BESDIRAC.FrameworkSystem.DB.GeneralPurposeDB           import GeneralPurposeDB
+        gpdb_dao = GeneralPurposeDB()
+        result = gpdb_dao.addNewJournalRow(test_name, json.dumps([site_name]), json.dumps([test_result]), description)
+        if not result['OK']:
+            isOK = False
+            error_message = 'Failed to add row in DB' + result['Message']
+            gLogger.error(error_message)
+        gLogger.info(str(result))
+        #<<<<<< TEST SAMDB->GPDB
         sqlUpdate = "INSERT INTO States (site_id, test_id, result_id) VALUES(%s, %s, %s) ON DUPLICATE KEY UPDATE result_id=VALUES(result_id)" % (site_id, test_id, result_id)
         result = self._update(sqlUpdate)
         if not result['OK']:
