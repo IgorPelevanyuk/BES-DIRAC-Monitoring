@@ -215,22 +215,21 @@ class SAMDB(DB):
             return result
         return result
 
-    def setResult(self, result, result_id, description="", hostname=""):
-        sqlUpdate = "UPDATE Results SET state='%s', last_update=%s, description='%s' WHERE result_id=%s" % (result, "UTC_TIMESTAMP()", description, result_id)
+    def setResult(self, test_result, result_id, description="", hostname=""):
+        sqlUpdate = "UPDATE Results SET state='%s', last_update=%s, description='%s' WHERE result_id=%s" % (test_result, "UTC_TIMESTAMP()", description, result_id)
         gLogger.info(sqlUpdate)
         result = self._update(sqlUpdate)
         if not result['OK']:
             gLogger.error('Failed to set the result row')
             return result
 
-        sqlSelect = "SELECT R.site_id, R.test_id FROM Results R WHERE R.result_id=%s" % (result_id)
+        sqlSelect = "SELECT R.site_id, R.test_id, T.name, S.name FROM Results R, Sites S, Tests T WHERE R.result_id=%s and S.site_id=R.site_id and T.test_id=R.test_id" % (result_id)
         result = self._query(sqlSelect)
         if not result['OK']:
             gLogger.error('Failed to get site_id and test_id')
             return result
 
         site_id, test_id = int(result['Value'][0][0]), int(result['Value'][0][1])
-        site_id, test_id =  int(result['Value'][0][0]), int(result['Value'][0][1])
         #>>>>>> TEST SAMDB->GPDB
         test_name, site_name = result['Value'][0][2], result['Value'][0][3]
         import json

@@ -12,7 +12,7 @@ from DIRAC.Core.Base.AgentModule                            import AgentModule
 from DIRAC.Interfaces.API.Job                               import Job
 from DIRAC.Interfaces.API.Dirac                             import Dirac
 from DIRAC.Interfaces.API.DiracAdmin                        import DiracAdmin
-from DIRAC.FrameworkSystem.DB.SAMDB                         import SAMDB
+from BESDIRAC.FrameworkSystem.DB.SAMDB                      import SAMDB
 
 SAM_TEST_DIR = '/opt/dirac/pro/DIRAC/FrameworkSystem/Agent/sam_tests/'
 class SAMLauncherAgent(AgentModule):
