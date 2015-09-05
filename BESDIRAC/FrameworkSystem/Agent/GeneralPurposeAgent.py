@@ -6,12 +6,13 @@
 """
 from DIRAC                                                  import gLogger, gConfig, S_OK, S_ERROR
 from DIRAC.Core.Base.AgentModule                            import AgentModule
-from DIRAC.FrameworkSystem.DB.GeneralPurposeDB              import GeneralPurposeDB
+from BESDIRAC.FrameworkSystem.DB.GeneralPurposeDB              import GeneralPurposeDB
 import subprocess
 import json
 
 # DMStestCommand
-from DIRAC.DataManagementSystem.Client.ReplicaManager       import ReplicaManager 
+#from DIRAC.DataManagementSystem.Client.ReplicaManager       import ReplicaManager 
+from DIRAC.DataManagementSystem.Client.DataManager import DataManager
 import os
 
 __RCSID__ = '$Id:  $'
@@ -121,22 +122,22 @@ class DMStestCommand(Command):
         test_file.write('b'*size)
 
     def _add_file(self, lfn, localfile, SE, guid=None):
-        rm = ReplicaManager()
+        dm = DataManager()
         self._create_test_file()
         if not os.path.exists(self.options['test_file']):
             gLogger.error("File %s must exist locally" % localfile)
         if not os.path.isfile(self.options['test_file']):
             gLogger.error("%s is not a file" % localfile)
 
-        res = rm.putAndRegister(lfn, localfile, SE, guid)
+        res = dm.putAndRegister(lfn, localfile, SE, guid)
         if not res['OK']:
             gLogger.error('Error: failed to upload %s to %s' % (lfn, SE))
             return S_ERROR(res['Message'])
         return S_OK(res['Value']['Successful'][lfn])
 
     def _remove_file(self, lfn):
-        rm = ReplicaManager()
-        res = rm.removeFile([lfn])
+        dm = DataManager()
+        res = dm.removeFile([lfn])
         if not res['OK']:
             gLogger.error("Failed to remove data", res['Message'])
             return res
@@ -145,8 +146,8 @@ class DMStestCommand(Command):
         return S_ERROR(res['Value']['Failed'])
 
     def _replicate(self, lfn, destinationSE, sourceSE="", localCache=""):
-        rm = ReplicaManager()
-        result = rm.replicateAndRegister(lfn, destinationSE, sourceSE, '', localCache)
+        dm = DataManager()
+        result = dm.replicateAndRegister(lfn, destinationSE, sourceSE, '', localCache)
         if not result['OK']:
             print 'ERROR %s' % (result['Message'])
             return result
@@ -154,8 +155,8 @@ class DMStestCommand(Command):
             return S_OK(result['Value']['Successful'][lfn])
 
     def _get_file(self, lfn):
-        rm = ReplicaManager()
-        result = rm.getFile(lfn, "")
+        dm = DataManager()
+        result = dm.getFile(lfn, "")
         if not result['OK']:
             return S_ERROR(result['Message'])
 
