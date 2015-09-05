@@ -17,6 +17,14 @@ from DIRAC.FrameworkSystem.DB.SAMDB                         import SAMDB
 SAM_TEST_DIR = '/opt/dirac/pro/DIRAC/FrameworkSystem/Agent/sam_tests/'
 class SAMLauncherAgent(AgentModule):
 
+    def _getTestsList():
+        result = {}
+        for test in gConfig.getSections('/Systems/Framework/Production/Agents/SAMLauncherAgent')['Value']:
+            result[test] = {}
+            for option in gConfig.getOptions('/Systems/Framework/Production/Agents/SAMLauncherAgent/'+test)['Value']:
+                result[test][option] = gConfig.getOption('/Systems/Framework/Production/Agents/SAMLauncherAgent/'+test+'/'+option)['Value']
+        return result
+
     def _getJobStatus(self, wms_job_id):
         result = self.dirac.status(wms_job_id)
         if result['OK'] and wms_job_id in result['Value']:
