@@ -15,7 +15,7 @@ def trunc(float_num):
 
 USE_PURE_MYSQL = True
 
-def mysql_querry(querry, db_name, mysql_host='diracdb.ihep.ac.cn'):
+def mysql_querry(querry, db_name, mysql_host='diracdb2.ihep.ac.cn'):
     if USE_PURE_MYSQL:
         import MySQLdb
         dba_object = MySQLdb.connect(host=mysql_host,

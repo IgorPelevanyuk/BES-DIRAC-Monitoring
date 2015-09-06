@@ -29,7 +29,7 @@ class BusynessMonitorHandler(WebHandler):
         
         #Get current Running jobs
         import MySQLdb #@UnresolvedImport
-        db = MySQLdb.connect(host="diracdb.ihep.ac.cn", # your host, usually localhost
+        db = MySQLdb.connect(host="diracdb2.ihep.ac.cn", # your host, usually localhost
                              user="monitor", # your username
                              passwd="###DIRAC_DB_PASS###", # your password
                              db="JobDB")

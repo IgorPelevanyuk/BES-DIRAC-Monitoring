@@ -23,7 +23,7 @@ def choose(condition, satisfy, unsatisfy):
 def mysql_querry(querry):
     if USE_PURE_MYSQL:
         import MySQLdb#@UnresolvedImport
-        db = MySQLdb.connect(host="diracdb.ihep.ac.cn", # your host, usually localhost
+        db = MySQLdb.connect(host="diracdb2.ihep.ac.cn", # your host, usually localhost
                          user="monitor", # your username
                          passwd="###DIRAC_DB_PASS###", # your password
                          db="JobDB")
