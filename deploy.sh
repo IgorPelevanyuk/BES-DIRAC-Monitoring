@@ -1,3 +1,8 @@
+mkdir -p /opt/dirac/pro/BESDIRAC/FrameworkSystem/DB
+mkdir -p /opt/dirac/pro/BESDIRAC/FrameworkSystem/Agent/sam_tests
+mkdir -p /opt/dirac/pro/BESDIRAC/FrameworkSystem/Service
+mkdir -p /opt/dirac/pro/BESDIRAC/FrameworkSystem/Client
+
 cp BESDIRAC/FrameworkSystem/DB/SAMDB.py /opt/dirac/pro/BESDIRAC/FrameworkSystem/DB/.
 cp BESDIRAC/FrameworkSystem/DB/SAMDB.sql /opt/dirac/pro/BESDIRAC/FrameworkSystem/DB/.
 
